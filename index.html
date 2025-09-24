@@ -3609,7 +3609,7 @@
       return id;
     }
 
-    const PER_PAGE = 9;
+    const PER_PAGE = 6;
     let currentPage = 1;
     let currentData = [];
     let startedGlobalPrefetch = false;
@@ -3837,12 +3837,6 @@
       const pageItems = list.slice(start, start + PER_PAGE);
       renderGrid(pageItems);
       renderPager(list.length, page);
-      // Prefetch trailer IDs for items on the next page to speed up embeds
-      const nextStart = page * PER_PAGE;
-      const nextItems = list.slice(nextStart, nextStart + PER_PAGE);
-      nextItems.forEach(g=>{
-        getOrResolveTrailerId(g.slug, (g.Title||'').toUpperCase());
-      });
     }
 
     function exportTrailerIds(){
@@ -3927,11 +3921,6 @@
       currentPage = 1;
       document.getElementById('count').textContent = sorted.length + ' result' + (sorted.length === 1 ? '' : 's');
       renderPage(currentData, currentPage);
-      if(!startedGlobalPrefetch){
-        startedGlobalPrefetch = true;
-        // Start background prefetch for all items to maximize embed coverage
-        setTimeout(()=>{ prefetchAllTrailerIds(sorted); }, 0);
-      }
     }
 
     (function(){
