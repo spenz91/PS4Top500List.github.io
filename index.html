@@ -1,0 +1,3972 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PlayStation 4 — Top 500 List</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@700;800&display=swap');
+    :root{--bg:#0f1720;--card:#0b1220;--muted:#9aa4b2;--accent:#7531B4}
+    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#071022 0%,#071826 100%);background-repeat:no-repeat;background-size:cover;background-attachment:fixed;background-position:center top;color:#e6eef6}
+    .wrap{max-width:1200px;margin:28px auto;padding:20px}
+    header{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+    h1{margin:0;font-size:20px;color:var(--accent)}
+    .ps4-title{font-family:'Oxanium',Inter,Segoe UI,Arial,sans-serif;font-weight:800;font-size:36px;letter-spacing:.5px;color:#e6eef6;line-height:1.1}
+    @media (min-width: 768px){.ps4-title{font-size:42px}}
+    .ps4-title{background:linear-gradient(90deg,#6aa7ff 0%,#2e6cff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 2px 12px rgba(53,119,255,0.35)}
+    .controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+    .controls input[type=text],.controls input[type=number],.controls button{background:#071022;border:1px solid #1f2937;padding:8px 10px;border-radius:8px;color:#dbeafe}
+    .controls input[type=number]{width:84px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.06));border:1px solid #16232f;padding:10px;border-radius:10px;display:flex;flex-direction:column;gap:8px}
+    .meta{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+    .title{font-weight:800;font-size:18px;color:#fff}
+    .small{font-size:12px;color:var(--muted)}
+    footer{margin-top:18px;color:var(--muted);font-size:13px}
+    .badge{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:6px;font-weight:600}
+    .pager{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:12px}
+    .cover-box{position:relative;width:100%;max-width:360px;aspect-ratio:12/7;height:auto;border-radius:8px;overflow:hidden;background:#0b1220;margin:0 auto}
+    .cover{width:100%;height:100%;object-fit:contain;object-position:center;border-radius:8px;display:block;background:#0b1220}
+    .yt-frame{width:100%;height:100%;border:0;display:block;border-radius:8px;background:#000}
+    .score{font-size:22px;font-weight:800;color:#fff;background:rgba(117,49,180,0.18);padding:4px 8px;border-radius:6px;display:inline-block;border:1px solid #2a3a4a}
+    .rank{font-size:22px;font-weight:800;color:#fff;background:rgba(117,49,180,0.18);padding:4px 8px;border-radius:6px;display:inline-block;border:1px solid #2a3a4a;transform:translateY(-8px)}
+  </style>
+  <script>
+    (function loadYT(){
+      if(window.__ytApiLoading) return; window.__ytApiLoading = true;
+      const s = document.createElement('script');
+      s.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(s);
+    })();
+    window.__ytReady = false;
+    window.__ytQueue = [];
+    window.onYouTubeIframeAPIReady = function(){
+      window.__ytReady = true;
+      (window.__ytQueue||[]).forEach(fn=>{ try{ fn(); }catch(e){} });
+      window.__ytQueue = [];
+    };
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 class="ps4-title">PlayStation 4 — Top 500 List</h1>
+      <div class="controls">
+        <input id="q" type="text" placeholder="Search title" aria-label="Search title">
+        <input id="min" type="number" placeholder="Min" min="0" max="100" aria-label="Min score">
+        <input id="max" type="number" placeholder="Max" min="0" max="100" aria-label="Max score">
+        <button id="apply">Filter</button>
+        <button id="reset">Reset</button>
+        <button id="resolveAll">Resolve all</button>
+        <button id="export">Export trailers</button>
+      </div>
+    </header>
+
+    <div id="count" class="small" style="margin-top:10px"></div>
+
+    <div id="grid" class="grid"></div>
+
+    <div id="pager" class="pager">
+      <button id="prev">Previous</button>
+      <span id="pageInfo" class="badge"></span>
+      <button id="next">Next</button>
+    </div>
+
+    
+  </div>
+
+  <script>
+    // Embedded games data (top 500)
+    const GAMES = [
+  {
+    "Rank": 1,
+    "Title": "Red Dead Redemption 2",
+    "Metascore": 97,
+    "Release Date": "Oct 26, 2018",
+    "slug": "red-dead-redemption-2"
+  },
+  {
+    "Rank": 2,
+    "Title": "Grand Theft Auto V",
+    "Metascore": 97,
+    "Release Date": "Nov 18, 2014",
+    "slug": "grand-theft-auto-v"
+  },
+  {
+    "Rank": 3,
+    "Title": "Persona 5 Royal",
+    "Metascore": 95,
+    "Release Date": "Mar 31, 2020",
+    "slug": "persona-5-royal"
+  },
+  {
+    "Rank": 4,
+    "Title": "The Last of Us Remastered",
+    "Metascore": 95,
+    "Release Date": "Jul 29, 2014",
+    "slug": "the-last-of-us-remastered"
+  },
+  {
+    "Rank": 5,
+    "Title": "God of War (2018)",
+    "Metascore": 94,
+    "Release Date": "Apr 20, 2018",
+    "slug": "god-of-war-2018"
+  },
+  {
+    "Rank": 6,
+    "Title": "The Last of Us Part II",
+    "Metascore": 93,
+    "Release Date": "Jun 19, 2020",
+    "slug": "the-last-of-us-part-ii"
+  },
+  {
+    "Rank": 7,
+    "Title": "Persona 5",
+    "Metascore": 93,
+    "Release Date": "Apr 4, 2017",
+    "slug": "persona-5"
+  },
+  {
+    "Rank": 8,
+    "Title": "Metal Gear Solid V: The Phantom Pain",
+    "Metascore": 93,
+    "Release Date": "Sep 1, 2015",
+    "slug": "metal-gear-solid-v-the-phantom-pain"
+  },
+  {
+    "Rank": 9,
+    "Title": "Uncharted 4: A Thief's End",
+    "Metascore": 93,
+    "Release Date": "May 10, 2016",
+    "slug": "uncharted-4-a-thief-s-end"
+  },
+  {
+    "Rank": 10,
+    "Title": "Journey",
+    "Metascore": 92,
+    "Release Date": "Jul 21, 2015",
+    "slug": "journey"
+  },
+  {
+    "Rank": 11,
+    "Title": "Bloodborne",
+    "Metascore": 92,
+    "Release Date": "Mar 24, 2015",
+    "slug": "bloodborne"
+  },
+  {
+    "Rank": 12,
+    "Title": "Undertale",
+    "Metascore": 92,
+    "Release Date": "Aug 15, 2017",
+    "slug": "undertale"
+  },
+  {
+    "Rank": 13,
+    "Title": "The Witcher 3: Wild Hunt",
+    "Metascore": 92,
+    "Release Date": "May 19, 2015",
+    "slug": "the-witcher-3-wild-hunt"
+  },
+  {
+    "Rank": 14,
+    "Title": "Divinity: Original Sin II",
+    "Metascore": 92,
+    "Release Date": "Aug 31, 2018",
+    "slug": "divinity-original-sin-ii"
+  },
+  {
+    "Rank": 15,
+    "Title": "Final Fantasy XIV: Shadowbringers",
+    "Metascore": 91,
+    "Release Date": "Jul 2, 2019",
+    "slug": "final-fantasy-xiv-shadowbringers"
+  },
+  {
+    "Rank": 16,
+    "Title": "Shadow of the Colossus (remake)",
+    "Metascore": 91,
+    "Release Date": "Feb 6, 2018",
+    "slug": "shadow-of-the-colossus-remake"
+  },
+  {
+    "Rank": 17,
+    "Title": "The Witcher 3: Blood and Wine",
+    "Metascore": 91,
+    "Release Date": "May 30, 2016",
+    "slug": "the-witcher-3-blood-and-wine"
+  },
+  {
+    "Rank": 18,
+    "Title": "Celeste",
+    "Metascore": 91,
+    "Release Date": "Jan 25, 2018",
+    "slug": "celeste"
+  },
+  {
+    "Rank": 19,
+    "Title": "INSIDE",
+    "Metascore": 91,
+    "Release Date": "Aug 23, 2016",
+    "slug": "inside"
+  },
+  {
+    "Rank": 20,
+    "Title": "NieR: Automata",
+    "Metascore": 91,
+    "Release Date": "Mar 7, 2017",
+    "slug": "nier-automata"
+  },
+  {
+    "Rank": 21,
+    "Title": "Resident Evil 2 (2019)",
+    "Metascore": 91,
+    "Release Date": "Jan 25, 2019",
+    "slug": "resident-evil-2-2019"
+  },
+  {
+    "Rank": 22,
+    "Title": "flower",
+    "Metascore": 91,
+    "Release Date": "Nov 15, 2013",
+    "slug": "flower"
+  },
+  {
+    "Rank": 23,
+    "Title": "Dragon Quest XI S: Echoes of an Elusive Age - Definitive Edition",
+    "Metascore": 91,
+    "Release Date": "Dec 4, 2020",
+    "slug": "dragon-quest-xi-s-echoes-of-an-elusive-age-definitive-edition"
+  },
+  {
+    "Rank": 24,
+    "Title": "Diablo III: Ultimate Evil Edition",
+    "Metascore": 90,
+    "Release Date": "Aug 19, 2014",
+    "slug": "diablo-iii-ultimate-evil-edition"
+  },
+  {
+    "Rank": 25,
+    "Title": "Overwatch",
+    "Metascore": 90,
+    "Release Date": "May 23, 2016",
+    "slug": "overwatch"
+  },
+  {
+    "Rank": 26,
+    "Title": "Shovel Knight",
+    "Metascore": 90,
+    "Release Date": "Apr 21, 2015",
+    "slug": "shovel-knight"
+  },
+  {
+    "Rank": 27,
+    "Title": "Rayman Legends",
+    "Metascore": 90,
+    "Release Date": "Feb 18, 2014",
+    "slug": "rayman-legends"
+  },
+  {
+    "Rank": 28,
+    "Title": "Fez",
+    "Metascore": 90,
+    "Release Date": "Mar 25, 2014",
+    "slug": "fez"
+  },
+  {
+    "Rank": 29,
+    "Title": "Monster Hunter: World",
+    "Metascore": 90,
+    "Release Date": "Jan 26, 2018",
+    "slug": "monster-hunter-world"
+  },
+  {
+    "Rank": 30,
+    "Title": "Tales From The Borderlands: Episode 5",
+    "Metascore": 90,
+    "Release Date": "Oct 20, 2015",
+    "slug": "tales-from-the-borderlands-episode-5"
+  },
+  {
+    "Rank": 31,
+    "Title": "The Witcher 3: Wild Hunt - Hearts of Stone (expansion)",
+    "Metascore": 90,
+    "Release Date": "Oct 12, 2015",
+    "slug": "the-witcher-3-wild-hunt-hearts-of-stone-expansion"
+  },
+  {
+    "Rank": 32,
+    "Title": "Sekiro: Shadows Die Twice",
+    "Metascore": 90,
+    "Release Date": "Mar 22, 2019",
+    "slug": "sekiro-shadows-die-twice"
+  },
+  {
+    "Rank": 33,
+    "Title": "Astro Bot Rescue Mission",
+    "Metascore": 90,
+    "Release Date": "Oct 2, 2018",
+    "slug": "astro-bot-rescue-mission"
+  },
+  {
+    "Rank": 34,
+    "Title": "Monster Hunter World: Iceborne",
+    "Metascore": 89,
+    "Release Date": "Sep 6, 2019",
+    "slug": "monster-hunter-world-iceborne"
+  },
+  {
+    "Rank": 35,
+    "Title": "Rez Infinite",
+    "Metascore": 89,
+    "Release Date": "Oct 13, 2016",
+    "slug": "rez-infinite"
+  },
+  {
+    "Rank": 36,
+    "Title": "Titanfall 2",
+    "Metascore": 89,
+    "Release Date": "Oct 28, 2016",
+    "slug": "titanfall-2"
+  },
+  {
+    "Rank": 37,
+    "Title": "Dark Souls III",
+    "Metascore": 89,
+    "Release Date": "Apr 12, 2016",
+    "slug": "dark-souls-iii"
+  },
+  {
+    "Rank": 38,
+    "Title": "Tetris Effect",
+    "Metascore": 89,
+    "Release Date": "Nov 9, 2018",
+    "slug": "tetris-effect"
+  },
+  {
+    "Rank": 39,
+    "Title": "Final Fantasy XIV: Stormblood",
+    "Metascore": 89,
+    "Release Date": "Jun 20, 2017",
+    "slug": "final-fantasy-xiv-stormblood"
+  },
+  {
+    "Rank": 40,
+    "Title": "It Takes Two",
+    "Metascore": 89,
+    "Release Date": "Mar 26, 2021",
+    "slug": "it-takes-two"
+  },
+  {
+    "Rank": 41,
+    "Title": "Bastion",
+    "Metascore": 89,
+    "Release Date": "Apr 7, 2015",
+    "slug": "bastion"
+  },
+  {
+    "Rank": 42,
+    "Title": "Apex Legends",
+    "Metascore": 89,
+    "Release Date": "Feb 4, 2019",
+    "slug": "apex-legends"
+  },
+  {
+    "Rank": 43,
+    "Title": "Synth Riders",
+    "Metascore": 89,
+    "Release Date": "Jul 27, 2021",
+    "slug": "synth-riders"
+  },
+  {
+    "Rank": 44,
+    "Title": "Dreams",
+    "Metascore": 89,
+    "Release Date": "Feb 14, 2020",
+    "slug": "dreams"
+  },
+  {
+    "Rank": 45,
+    "Title": "Dragon Age: Inquisition",
+    "Metascore": 89,
+    "Release Date": "Nov 18, 2014",
+    "slug": "dragon-age-inquisition"
+  },
+  {
+    "Rank": 46,
+    "Title": "Tony Hawk's Pro Skater 1 + 2",
+    "Metascore": 89,
+    "Release Date": "Sep 4, 2020",
+    "slug": "tony-hawk-s-pro-skater-1-2"
+  },
+  {
+    "Rank": 47,
+    "Title": "Battlefield 1",
+    "Metascore": 89,
+    "Release Date": "Oct 18, 2016",
+    "slug": "battlefield-1"
+  },
+  {
+    "Rank": 48,
+    "Title": "Horizon Zero Dawn",
+    "Metascore": 89,
+    "Release Date": "Feb 28, 2017",
+    "slug": "horizon-zero-dawn"
+  },
+  {
+    "Rank": 49,
+    "Title": "Minecraft (PS4)",
+    "Metascore": 89,
+    "Release Date": "Sep 3, 2014",
+    "slug": "minecraft-ps4"
+  },
+  {
+    "Rank": 50,
+    "Title": "What Remains of Edith Finch",
+    "Metascore": 88,
+    "Release Date": "Apr 25, 2017",
+    "slug": "what-remains-of-edith-finch"
+  },
+  {
+    "Rank": 51,
+    "Title": "The Binding of Isaac: Rebirth",
+    "Metascore": 88,
+    "Release Date": "Nov 4, 2014",
+    "slug": "the-binding-of-isaac-rebirth"
+  },
+  {
+    "Rank": 52,
+    "Title": "NieR: Automata (duplicate listing)",
+    "Metascore": 88,
+    "Release Date": "Mar 7, 2017",
+    "slug": "nier-automata-duplicate-listing"
+  },
+  {
+    "Rank": 53,
+    "Title": "Rise of the Tomb Raider: 20 Year Celebration",
+    "Metascore": 88,
+    "Release Date": "Oct 11, 2016",
+    "slug": "rise-of-the-tomb-raider-20-year-celebration"
+  },
+  {
+    "Rank": 54,
+    "Title": "NBA 2K17",
+    "Metascore": 88,
+    "Release Date": "Sep 16, 2016",
+    "slug": "nba-2k17"
+  },
+  {
+    "Rank": 55,
+    "Title": "Dishonored 2",
+    "Metascore": 88,
+    "Release Date": "Nov 10, 2016",
+    "slug": "dishonored-2"
+  },
+  {
+    "Rank": 56,
+    "Title": "Injustice 2: Legendary Edition",
+    "Metascore": 88,
+    "Release Date": "Mar 27, 2018",
+    "slug": "injustice-2-legendary-edition"
+  },
+  {
+    "Rank": 57,
+    "Title": "Divinity: Original Sin Enhanced Edition",
+    "Metascore": 88,
+    "Release Date": "Oct 27, 2015",
+    "slug": "divinity-original-sin-enhanced-edition"
+  },
+  {
+    "Rank": 58,
+    "Title": "Devil May Cry 5",
+    "Metascore": 88,
+    "Release Date": "Mar 8, 2019",
+    "slug": "devil-may-cry-5"
+  },
+  {
+    "Rank": 59,
+    "Title": "Slay the Spire",
+    "Metascore": 88,
+    "Release Date": "May 21, 2019",
+    "slug": "slay-the-spire"
+  },
+  {
+    "Rank": 60,
+    "Title": "Owlboy",
+    "Metascore": 88,
+    "Release Date": "Apr 10, 2018",
+    "slug": "owlboy"
+  },
+  {
+    "Rank": 61,
+    "Title": "Kentucky Route Zero: TV Edition",
+    "Metascore": 88,
+    "Release Date": "Jan 28, 2020",
+    "slug": "kentucky-route-zero-tv-edition"
+  },
+  {
+    "Rank": 62,
+    "Title": "Keep Talking and Nobody Explodes",
+    "Metascore": 88,
+    "Release Date": "Oct 13, 2016",
+    "slug": "keep-talking-and-nobody-explodes"
+  },
+  {
+    "Rank": 63,
+    "Title": "The Talos Principle: Deluxe Edition",
+    "Metascore": 88,
+    "Release Date": "Oct 13, 2015",
+    "slug": "the-talos-principle-deluxe-edition"
+  },
+  {
+    "Rank": 64,
+    "Title": "Pistol Whip",
+    "Metascore": 88,
+    "Release Date": "Jul 30, 2020",
+    "slug": "pistol-whip"
+  },
+  {
+    "Rank": 65,
+    "Title": "Nex Machina: Death Machine",
+    "Metascore": 88,
+    "Release Date": "Jun 20, 2017",
+    "slug": "nex-machina-death-machine"
+  },
+  {
+    "Rank": 66,
+    "Title": "Nioh",
+    "Metascore": 88,
+    "Release Date": "Feb 7, 2017",
+    "slug": "nioh"
+  },
+  {
+    "Rank": 67,
+    "Title": "Guacamelee! Super Turbo Championship Edition",
+    "Metascore": 87,
+    "Release Date": "Jul 1, 2014",
+    "slug": "guacamelee-super-turbo-championship-edition"
+  },
+  {
+    "Rank": 68,
+    "Title": "Frostpunk",
+    "Metascore": 87,
+    "Release Date": "Oct 11, 2019",
+    "slug": "frostpunk"
+  },
+  {
+    "Rank": 69,
+    "Title": "Bloodborne: The Old Hunters (DLC)",
+    "Metascore": 87,
+    "Release Date": "Nov 24, 2015",
+    "slug": "bloodborne-the-old-hunters-dlc"
+  },
+  {
+    "Rank": 70,
+    "Title": "XCOM 2",
+    "Metascore": 87,
+    "Release Date": "Sep 27, 2016",
+    "slug": "xcom-2"
+  },
+  {
+    "Rank": 71,
+    "Title": "Injustice (2017)",
+    "Metascore": 87,
+    "Release Date": "May 16, 2017",
+    "slug": "injustice-2017"
+  },
+  {
+    "Rank": 72,
+    "Title": "The Witness",
+    "Metascore": 87,
+    "Release Date": "Jan 26, 2016",
+    "slug": "the-witness"
+  },
+  {
+    "Rank": 73,
+    "Title": "Dead Cells",
+    "Metascore": 87,
+    "Release Date": "Aug 7, 2018",
+    "slug": "dead-cells"
+  },
+  {
+    "Rank": 74,
+    "Title": "Sid Meier's Civilization VI",
+    "Metascore": 87,
+    "Release Date": "Nov 22, 2019",
+    "slug": "sid-meier-s-civilization-vi"
+  },
+  {
+    "Rank": 75,
+    "Title": "Final Fantasy VII Remake",
+    "Metascore": 87,
+    "Release Date": "Apr 10, 2020",
+    "slug": "final-fantasy-vii-remake"
+  },
+  {
+    "Rank": 76,
+    "Title": "Street Fighter V: Arcade Edition",
+    "Metascore": 87,
+    "Release Date": "Jan 16, 2018",
+    "slug": "street-fighter-v-arcade-edition"
+  },
+  {
+    "Rank": 77,
+    "Title": "Night in the Woods",
+    "Metascore": 87,
+    "Release Date": "Feb 21, 2017",
+    "slug": "night-in-the-woods"
+  },
+  {
+    "Rank": 78,
+    "Title": "Chained Echoes",
+    "Metascore": 87,
+    "Release Date": "Dec 8, 2022",
+    "slug": "chained-echoes"
+  },
+  {
+    "Rank": 79,
+    "Title": "Quake Remastered",
+    "Metascore": 87,
+    "Release Date": "Aug 19, 2021",
+    "slug": "quake-remastered"
+  },
+  {
+    "Rank": 80,
+    "Title": "Dragon Ball FighterZ",
+    "Metascore": 87,
+    "Release Date": "Jan 26, 2018",
+    "slug": "dragon-ball-fighterz"
+  },
+  {
+    "Rank": 81,
+    "Title": "Batman: Arkham Knight",
+    "Metascore": 87,
+    "Release Date": "Jun 23, 2015",
+    "slug": "batman-arkham-knight"
+  },
+  {
+    "Rank": 82,
+    "Title": "Marvel's Spider-Man",
+    "Metascore": 87,
+    "Release Date": "Sep 7, 2018",
+    "slug": "marvel-s-spider-man"
+  },
+  {
+    "Rank": 83,
+    "Title": "Okami HD",
+    "Metascore": 87,
+    "Release Date": "Dec 12, 2017",
+    "slug": "okami-hd"
+  },
+  {
+    "Rank": 84,
+    "Title": "TowerFall Ascension",
+    "Metascore": 87,
+    "Release Date": "Mar 11, 2014",
+    "slug": "towerfall-ascension"
+  },
+  {
+    "Rank": 85,
+    "Title": "Monster Boy and the Cursed Kingdom",
+    "Metascore": 87,
+    "Release Date": "Dec 4, 2018",
+    "slug": "monster-boy-and-the-cursed-kingdom"
+  },
+  {
+    "Rank": 86,
+    "Title": "FIFA 14",
+    "Metascore": 87,
+    "Release Date": "Nov 12, 2013",
+    "slug": "fifa-14"
+  },
+  {
+    "Rank": 87,
+    "Title": "Final Fantasy Pixel Remaster: FF35th Anniversary Edition",
+    "Metascore": 87,
+    "Release Date": "Apr 30, 2023",
+    "slug": "final-fantasy-pixel-remaster-ff35th-anniversary-edition"
+  },
+  {
+    "Rank": 88,
+    "Title": "DOOM Eternal",
+    "Metascore": 87,
+    "Release Date": "Mar 20, 2020",
+    "slug": "doom-eternal"
+  },
+  {
+    "Rank": 89,
+    "Title": "Pro Evolution Soccer 2016",
+    "Metascore": 87,
+    "Release Date": "Sep 15, 2015",
+    "slug": "pro-evolution-soccer-2016"
+  },
+  {
+    "Rank": 90,
+    "Title": "Zero Escape: The Nonary Games",
+    "Metascore": 87,
+    "Release Date": "Mar 24, 2017",
+    "slug": "zero-escape-the-nonary-games"
+  },
+  {
+    "Rank": 91,
+    "Title": "Mass Effect Legendary Edition",
+    "Metascore": 87,
+    "Release Date": "May 14, 2021",
+    "slug": "mass-effect-legendary-edition"
+  },
+  {
+    "Rank": 92,
+    "Title": "Wolfenstein II: The New Colossus",
+    "Metascore": 87,
+    "Release Date": "Oct 27, 2017",
+    "slug": "wolfenstein-ii-the-new-colossus"
+  },
+  {
+    "Rank": 93,
+    "Title": "Odin Sphere Leifthrasir",
+    "Metascore": 87,
+    "Release Date": "Jun 7, 2016",
+    "slug": "odin-sphere-leifthrasir"
+  },
+  {
+    "Rank": 94,
+    "Title": "Theatrhythm Final Bar Line",
+    "Metascore": 87,
+    "Release Date": "Feb 16, 2023",
+    "slug": "theatrhythm-final-bar-line"
+  },
+  {
+    "Rank": 95,
+    "Title": "Dark Souls II: Scholar of the First Sin",
+    "Metascore": 87,
+    "Release Date": "Apr 7, 2015",
+    "slug": "dark-souls-ii-scholar-of-the-first-sin"
+  },
+  {
+    "Rank": 96,
+    "Title": "Sonic Mania Plus",
+    "Metascore": 87,
+    "Release Date": "Jul 17, 2018",
+    "slug": "sonic-mania-plus"
+  },
+  {
+    "Rank": 97,
+    "Title": "Psychonauts 2",
+    "Metascore": 87,
+    "Release Date": "Aug 25, 2021",
+    "slug": "psychonauts-2"
+  },
+  {
+    "Rank": 98,
+    "Title": "NBA 2K16",
+    "Metascore": 87,
+    "Release Date": "Sep 25, 2015",
+    "slug": "nba-2k16"
+  },
+  {
+    "Rank": 99,
+    "Title": "Spelunky 2",
+    "Metascore": 87,
+    "Release Date": "Sep 15, 2020",
+    "slug": "spelunky-2"
+  },
+  {
+    "Rank": 100,
+    "Title": "Marvel vs. Capcom Fighting Collection: Arcade Classics",
+    "Metascore": 87,
+    "Release Date": "Sep 12, 2024",
+    "slug": "marvel-vs-capcom-fighting-collection-arcade-classics"
+  },
+  {
+    "Rank": 101,
+    "Title": "Fallout 4",
+    "Metascore": 87,
+    "Release Date": "Nov 10, 2015",
+    "slug": "fallout-4"
+  },
+  {
+    "Rank": 102,
+    "Title": "Uncharted: The Nathan Drake Collection",
+    "Metascore": 86,
+    "Release Date": "Oct 9, 2015",
+    "slug": "uncharted-the-nathan-drake-collection"
+  },
+  {
+    "Rank": 103,
+    "Title": "Tales from the Borderlands",
+    "Metascore": 86,
+    "Release Date": "Oct 20, 2015",
+    "slug": "tales-from-the-borderlands"
+  },
+  {
+    "Rank": 104,
+    "Title": "F1 2017",
+    "Metascore": 86,
+    "Release Date": "Aug 25, 2017",
+    "slug": "f1-2017"
+  },
+  {
+    "Rank": 105,
+    "Title": "Velocity 2X",
+    "Metascore": 86,
+    "Release Date": "Sep 2, 2014",
+    "slug": "velocity-2x"
+  },
+  {
+    "Rank": 106,
+    "Title": "Stardew Valley",
+    "Metascore": 86,
+    "Release Date": "Dec 13, 2016",
+    "slug": "stardew-valley"
+  },
+  {
+    "Rank": 107,
+    "Title": "F1 2020",
+    "Metascore": 86,
+    "Release Date": "Jul 6, 2020",
+    "slug": "f1-2020"
+  },
+  {
+    "Rank": 108,
+    "Title": "Dragon Quest Builders 2",
+    "Metascore": 86,
+    "Release Date": "Jul 12, 2019",
+    "slug": "dragon-quest-builders-2"
+  },
+  {
+    "Rank": 109,
+    "Title": "Steins;Gate Elite",
+    "Metascore": 86,
+    "Release Date": "Feb 19, 2019",
+    "slug": "steins-gate-elite"
+  },
+  {
+    "Rank": 110,
+    "Title": "Thimbleweed Park",
+    "Metascore": 86,
+    "Release Date": "Aug 22, 2017",
+    "slug": "thimbleweed-park"
+  },
+  {
+    "Rank": 111,
+    "Title": "Ni no Kuni: Wrath of the White Witch Remastered",
+    "Metascore": 86,
+    "Release Date": "Sep 20, 2019",
+    "slug": "ni-no-kuni-wrath-of-the-white-witch-remastered"
+  },
+  {
+    "Rank": 112,
+    "Title": "Guilty Gear Xrd -REVELATOR-",
+    "Metascore": 86,
+    "Release Date": "Jun 7, 2016",
+    "slug": "guilty-gear-xrd-revelator"
+  },
+  {
+    "Rank": 113,
+    "Title": "Final Fantasy XII: The Zodiac Age",
+    "Metascore": 86,
+    "Release Date": "Jul 11, 2017",
+    "slug": "final-fantasy-xii-the-zodiac-age"
+  },
+  {
+    "Rank": 114,
+    "Title": "Disco Elysium: The Final Cut",
+    "Metascore": 86,
+    "Release Date": "Mar 30, 2021",
+    "slug": "disco-elysium-the-final-cut"
+  },
+  {
+    "Rank": 115,
+    "Title": "Fell Seal: Arbiter's Mark",
+    "Metascore": 86,
+    "Release Date": "Apr 30, 2019",
+    "slug": "fell-seal-arbiter-s-mark"
+  },
+  {
+    "Rank": 116,
+    "Title": "Sonic Mania",
+    "Metascore": 86,
+    "Release Date": "Aug 15, 2017",
+    "slug": "sonic-mania"
+  },
+  {
+    "Rank": 117,
+    "Title": "MLB The Show 19",
+    "Metascore": 86,
+    "Release Date": "Mar 26, 2019",
+    "slug": "mlb-the-show-19"
+  },
+  {
+    "Rank": 118,
+    "Title": "Persona 4 Golden",
+    "Metascore": 86,
+    "Release Date": "Jan 19, 2023",
+    "slug": "persona-4-golden"
+  },
+  {
+    "Rank": 119,
+    "Title": "Resident Evil 7: biohazard",
+    "Metascore": 86,
+    "Release Date": "Jan 24, 2017",
+    "slug": "resident-evil-7-biohazard"
+  },
+  {
+    "Rank": 120,
+    "Title": "Beat Saber",
+    "Metascore": 86,
+    "Release Date": "Nov 20, 2018",
+    "slug": "beat-saber"
+  },
+  {
+    "Rank": 121,
+    "Title": "Final Fantasy XIV: Heavensward",
+    "Metascore": 86,
+    "Release Date": "Jun 23, 2015",
+    "slug": "final-fantasy-xiv-heavensward"
+  },
+  {
+    "Rank": 122,
+    "Title": "Cuphead",
+    "Metascore": 86,
+    "Release Date": "Jul 28, 2020",
+    "slug": "cuphead"
+  },
+  {
+    "Rank": 123,
+    "Title": "Cuphead in the Delicious Last Course",
+    "Metascore": 86,
+    "Release Date": "Jun 30, 2022",
+    "slug": "cuphead-in-the-delicious-last-course"
+  },
+  {
+    "Rank": 124,
+    "Title": "Final Fantasy XIV Online: A Realm Reborn",
+    "Metascore": 86,
+    "Release Date": "Apr 14, 2014",
+    "slug": "final-fantasy-xiv-online-a-realm-reborn"
+  },
+  {
+    "Rank": 125,
+    "Title": "Dragon Quest XI: Echoes of an Elusive Age",
+    "Metascore": 86,
+    "Release Date": "Sep 4, 2018",
+    "slug": "dragon-quest-xi-echoes-of-an-elusive-age"
+  },
+  {
+    "Rank": 126,
+    "Title": "Destiny: The Taken King",
+    "Metascore": 86,
+    "Release Date": "Sep 15, 2015",
+    "slug": "destiny-the-taken-king"
+  },
+  {
+    "Rank": 127,
+    "Title": "Guilty Gear Xrd: Rev 2",
+    "Metascore": 86,
+    "Release Date": "May 26, 2017",
+    "slug": "guilty-gear-xrd-rev-2"
+  },
+  {
+    "Rank": 128,
+    "Title": "OlliOlli2: Welcome to Olliwood",
+    "Metascore": 86,
+    "Release Date": "Mar 3, 2015",
+    "slug": "olliolli2-welcome-to-olliwood"
+  },
+  {
+    "Rank": 129,
+    "Title": "Resogun: Heroes",
+    "Metascore": 86,
+    "Release Date": "Jun 24, 2014",
+    "slug": "resogun-heroes"
+  },
+  {
+    "Rank": 130,
+    "Title": "DiRT Rally",
+    "Metascore": 85,
+    "Release Date": "Apr 5, 2016",
+    "slug": "dirt-rally"
+  },
+  {
+    "Rank": 131,
+    "Title": "Crypt of the NecroDancer",
+    "Metascore": 85,
+    "Release Date": "Feb 2, 2016",
+    "slug": "crypt-of-the-necrodancer"
+  },
+  {
+    "Rank": 132,
+    "Title": "13 Sentinels: Aegis Rim",
+    "Metascore": 85,
+    "Release Date": "Sep 22, 2020",
+    "slug": "13-sentinels-aegis-rim"
+  },
+  {
+    "Rank": 133,
+    "Title": "The Outer Worlds",
+    "Metascore": 85,
+    "Release Date": "Oct 25, 2019",
+    "slug": "the-outer-worlds"
+  },
+  {
+    "Rank": 134,
+    "Title": "Battlefield 4",
+    "Metascore": 85,
+    "Release Date": "Nov 12, 2013",
+    "slug": "battlefield-4"
+  },
+  {
+    "Rank": 135,
+    "Title": "Pillars of Eternity: Complete Edition",
+    "Metascore": 85,
+    "Release Date": "Aug 29, 2017",
+    "slug": "pillars-of-eternity-complete-edition"
+  },
+  {
+    "Rank": 136,
+    "Title": "DOOM",
+    "Metascore": 85,
+    "Release Date": "May 13, 2016",
+    "slug": "doom"
+  },
+  {
+    "Rank": 137,
+    "Title": "NBA 2K14",
+    "Metascore": 85,
+    "Release Date": "Nov 12, 2013",
+    "slug": "nba-2k14"
+  },
+  {
+    "Rank": 138,
+    "Title": "Life is Strange",
+    "Metascore": 85,
+    "Release Date": "Oct 20, 2015",
+    "slug": "life-is-strange"
+  },
+  {
+    "Rank": 139,
+    "Title": "Teenage Mutant Ninja Turtles: Shredder's Revenge",
+    "Metascore": 85,
+    "Release Date": "Jun 16, 2022",
+    "slug": "teenage-mutant-ninja-turtles-shredder-s-revenge"
+  },
+  {
+    "Rank": 140,
+    "Title": "Nioh: Bloodshed's End",
+    "Metascore": 85,
+    "Release Date": "Sep 26, 2017",
+    "slug": "nioh-bloodshed-s-end"
+  },
+  {
+    "Rank": 141,
+    "Title": "Rocket League",
+    "Metascore": 85,
+    "Release Date": "Jul 7, 2015",
+    "slug": "rocket-league"
+  },
+  {
+    "Rank": 142,
+    "Title": "Final Fantasy IX",
+    "Metascore": 85,
+    "Release Date": "Sep 19, 2017",
+    "slug": "final-fantasy-ix"
+  },
+  {
+    "Rank": 143,
+    "Title": "DJMax Respect",
+    "Metascore": 85,
+    "Release Date": "Mar 6, 2018",
+    "slug": "djmax-respect"
+  },
+  {
+    "Rank": 144,
+    "Title": "Pro Evolution Soccer 2017",
+    "Metascore": 85,
+    "Release Date": "Sep 13, 2016",
+    "slug": "pro-evolution-soccer-2017"
+  },
+  {
+    "Rank": 145,
+    "Title": "Resogun: Defenders",
+    "Metascore": 85,
+    "Release Date": "Feb 17, 2015",
+    "slug": "resogun-defenders"
+  },
+  {
+    "Rank": 146,
+    "Title": "Ys VIII: Lacrimosa of DANA",
+    "Metascore": 85,
+    "Release Date": "Sep 12, 2017",
+    "slug": "ys-viii-lacrimosa-of-dana"
+  },
+  {
+    "Rank": 147,
+    "Title": "Nioh 2",
+    "Metascore": 85,
+    "Release Date": "Mar 13, 2020",
+    "slug": "nioh-2"
+  },
+  {
+    "Rank": 148,
+    "Title": "Bayonetta & Vanquish",
+    "Metascore": 85,
+    "Release Date": "Feb 18, 2020",
+    "slug": "bayonetta-and-vanquish"
+  },
+  {
+    "Rank": 149,
+    "Title": "Yakuza 0",
+    "Metascore": 85,
+    "Release Date": "Jan 24, 2017",
+    "slug": "yakuza-0"
+  },
+  {
+    "Rank": 150,
+    "Title": "MLB The Show 17",
+    "Metascore": 85,
+    "Release Date": "Mar 28, 2017",
+    "slug": "mlb-the-show-17"
+  },
+  {
+    "Rank": 151,
+    "Title": "Destiny 2",
+    "Metascore": 85,
+    "Release Date": "Sep 6, 2017",
+    "slug": "destiny-2"
+  },
+  {
+    "Rank": 152,
+    "Title": "Assault Android Cactus",
+    "Metascore": 85,
+    "Release Date": "Mar 8, 2016",
+    "slug": "assault-android-cactus"
+  },
+  {
+    "Rank": 153,
+    "Title": "Super Mega Baseball",
+    "Metascore": 85,
+    "Release Date": "Dec 16, 2014",
+    "slug": "super-mega-baseball"
+  },
+  {
+    "Rank": 154,
+    "Title": "Hitman 3",
+    "Metascore": 85,
+    "Release Date": "Jan 20, 2021",
+    "slug": "hitman-3"
+  },
+  {
+    "Rank": 155,
+    "Title": "Yakuza Kiwami 2",
+    "Metascore": 85,
+    "Release Date": "Aug 28, 2018",
+    "slug": "yakuza-kiwami-2"
+  },
+  {
+    "Rank": 156,
+    "Title": "Rogue Legacy",
+    "Metascore": 85,
+    "Release Date": "Jul 29, 2014",
+    "slug": "rogue-legacy"
+  },
+  {
+    "Rank": 157,
+    "Title": "AI: The Somnium Files - nirvanA Initiative",
+    "Metascore": 85,
+    "Release Date": "Jun 24, 2022",
+    "slug": "ai-the-somnium-files-nirvana-initiative"
+  },
+  {
+    "Rank": 158,
+    "Title": "Wipeout: Omega Collection",
+    "Metascore": 85,
+    "Release Date": "Jun 6, 2017",
+    "slug": "wipeout-omega-collection"
+  },
+  {
+    "Rank": 159,
+    "Title": "Mortal Kombat XL",
+    "Metascore": 85,
+    "Release Date": "Mar 1, 2016",
+    "slug": "mortal-kombat-xl"
+  },
+  {
+    "Rank": 160,
+    "Title": "Geometry Wars 3: Dimensions",
+    "Metascore": 85,
+    "Release Date": "Nov 25, 2014",
+    "slug": "geometry-wars-3-dimensions"
+  },
+  {
+    "Rank": 161,
+    "Title": "Ratchet & Clank (PS4)",
+    "Metascore": 85,
+    "Release Date": "Apr 12, 2016",
+    "slug": "ratchet-and-clank-ps4"
+  },
+  {
+    "Rank": 162,
+    "Title": "MLB The Show 16",
+    "Metascore": 85,
+    "Release Date": "Mar 29, 2016",
+    "slug": "mlb-the-show-16"
+  },
+  {
+    "Rank": 163,
+    "Title": "Valkyria Chronicles 4",
+    "Metascore": 85,
+    "Release Date": "Sep 25, 2018",
+    "slug": "valkyria-chronicles-4"
+  },
+  {
+    "Rank": 164,
+    "Title": "Far Cry 4",
+    "Metascore": 85,
+    "Release Date": "Nov 18, 2014",
+    "slug": "far-cry-4"
+  },
+  {
+    "Rank": 165,
+    "Title": "Moss",
+    "Metascore": 85,
+    "Release Date": "Feb 27, 2018",
+    "slug": "moss"
+  },
+  {
+    "Rank": 166,
+    "Title": "Tomb Raider: Definitive Edition",
+    "Metascore": 85,
+    "Release Date": "Jan 28, 2014",
+    "slug": "tomb-raider-definitive-edition"
+  },
+  {
+    "Rank": 167,
+    "Title": "Shadow Tactics: Blades of the Shogun",
+    "Metascore": 85,
+    "Release Date": "Aug 1, 2017",
+    "slug": "shadow-tactics-blades-of-the-shogun"
+  },
+  {
+    "Rank": 168,
+    "Title": "Super Meat Boy",
+    "Metascore": 85,
+    "Release Date": "Oct 6, 2015",
+    "slug": "super-meat-boy"
+  },
+  {
+    "Rank": 169,
+    "Title": "Pyre",
+    "Metascore": 85,
+    "Release Date": "Jul 25, 2017",
+    "slug": "pyre"
+  },
+  {
+    "Rank": 170,
+    "Title": "FIFA 17",
+    "Metascore": 85,
+    "Release Date": "Sep 27, 2016",
+    "slug": "fifa-17"
+  },
+  {
+    "Rank": 171,
+    "Title": "DiRT 4",
+    "Metascore": 85,
+    "Release Date": "Jun 6, 2017",
+    "slug": "dirt-4"
+  },
+  {
+    "Rank": 172,
+    "Title": "Crash Bandicoot 4: It's About Time",
+    "Metascore": 85,
+    "Release Date": "Oct 2, 2020",
+    "slug": "crash-bandicoot-4-it-s-about-time"
+  },
+  {
+    "Rank": 173,
+    "Title": "428: Shibuya Scramble",
+    "Metascore": 85,
+    "Release Date": "Sep 4, 2018",
+    "slug": "428-shibuya-scramble"
+  },
+  {
+    "Rank": 174,
+    "Title": "Gone Home",
+    "Metascore": 85,
+    "Release Date": "Jan 12, 2016",
+    "slug": "gone-home"
+  },
+  {
+    "Rank": 175,
+    "Title": "Ni no Kuni II: Revenant Kingdom",
+    "Metascore": 84,
+    "Release Date": "Mar 23, 2018",
+    "slug": "ni-no-kuni-ii-revenant-kingdom"
+  },
+  {
+    "Rank": 176,
+    "Title": "Statik",
+    "Metascore": 84,
+    "Release Date": "Apr 24, 2017",
+    "slug": "statik"
+  },
+  {
+    "Rank": 177,
+    "Title": "Valkyria Chronicles Remastered",
+    "Metascore": 84,
+    "Release Date": "May 17, 2016",
+    "slug": "valkyria-chronicles-remastered"
+  },
+  {
+    "Rank": 178,
+    "Title": "F1 2018",
+    "Metascore": 84,
+    "Release Date": "Aug 24, 2018",
+    "slug": "f1-2018"
+  },
+  {
+    "Rank": 179,
+    "Title": "Kingdom Hearts HD I.5 + II.5 Remix",
+    "Metascore": 84,
+    "Release Date": "Mar 28, 2017",
+    "slug": "kingdom-hearts-hd-i-5-ii-5-remix"
+  },
+  {
+    "Rank": 180,
+    "Title": "Middle-earth: Shadow of Mordor",
+    "Metascore": 84,
+    "Release Date": "Sep 30, 2014",
+    "slug": "middle-earth-shadow-of-mordor"
+  },
+  {
+    "Rank": 181,
+    "Title": "Guilty Gear Xrd -SIGN-",
+    "Metascore": 84,
+    "Release Date": "Dec 16, 2014",
+    "slug": "guilty-gear-xrd-sign"
+  },
+  {
+    "Rank": 182,
+    "Title": "BlazBlue: Central Fiction",
+    "Metascore": 84,
+    "Release Date": "Nov 1, 2016",
+    "slug": "blazblue-central-fiction"
+  },
+  {
+    "Rank": 183,
+    "Title": "Salt and Sanctuary",
+    "Metascore": 84,
+    "Release Date": "Mar 15, 2016",
+    "slug": "salt-and-sanctuary"
+  },
+  {
+    "Rank": 184,
+    "Title": "Dark Souls Remastered",
+    "Metascore": 84,
+    "Release Date": "May 25, 2018",
+    "slug": "dark-souls-remastered"
+  },
+  {
+    "Rank": 185,
+    "Title": "Castlevania Advance Collection",
+    "Metascore": 84,
+    "Release Date": "Sep 23, 2021",
+    "slug": "castlevania-advance-collection"
+  },
+  {
+    "Rank": 186,
+    "Title": "Day of the Tentacle Remastered",
+    "Metascore": 84,
+    "Release Date": "Mar 22, 2016",
+    "slug": "day-of-the-tentacle-remastered"
+  },
+  {
+    "Rank": 187,
+    "Title": "ZEN Pinball 2: South Park: Super-Sweet Pinball",
+    "Metascore": 84,
+    "Release Date": "Oct 14, 2014",
+    "slug": "zen-pinball-2-south-park-super-sweet-pinball"
+  },
+  {
+    "Rank": 188,
+    "Title": "Yakuza: Like a Dragon",
+    "Metascore": 84,
+    "Release Date": "Nov 10, 2020",
+    "slug": "yakuza-like-a-dragon"
+  },
+  {
+    "Rank": 189,
+    "Title": "DiRT Rally 2.0",
+    "Metascore": 84,
+    "Release Date": "Feb 26, 2019",
+    "slug": "dirt-rally-2-0"
+  },
+  {
+    "Rank": 190,
+    "Title": "Deus Ex: Mankind Divided",
+    "Metascore": 84,
+    "Release Date": "Aug 23, 2016",
+    "slug": "deus-ex-mankind-divided"
+  },
+  {
+    "Rank": 191,
+    "Title": "Guilty Gear -Strive-",
+    "Metascore": 84,
+    "Release Date": "Jun 8, 2021",
+    "slug": "guilty-gear-strive"
+  },
+  {
+    "Rank": 192,
+    "Title": "Thumper",
+    "Metascore": 84,
+    "Release Date": "Oct 10, 2016",
+    "slug": "thumper"
+  },
+  {
+    "Rank": 193,
+    "Title": "Axiom Verge",
+    "Metascore": 84,
+    "Release Date": "Mar 31, 2015",
+    "slug": "axiom-verge"
+  },
+  {
+    "Rank": 194,
+    "Title": "Polybius",
+    "Metascore": 84,
+    "Release Date": "May 9, 2017",
+    "slug": "polybius"
+  },
+  {
+    "Rank": 195,
+    "Title": "Uncharted: The Lost Legacy",
+    "Metascore": 84,
+    "Release Date": "Aug 22, 2017",
+    "slug": "uncharted-the-lost-legacy"
+  },
+  {
+    "Rank": 196,
+    "Title": "Wargroove",
+    "Metascore": 84,
+    "Release Date": "Jul 23, 2019",
+    "slug": "wargroove"
+  },
+  {
+    "Rank": 197,
+    "Title": "SoulCalibur VI",
+    "Metascore": 84,
+    "Release Date": "Oct 19, 2018",
+    "slug": "soulcalibur-vi"
+  },
+  {
+    "Rank": 198,
+    "Title": "ZEN Pinball 2: Aliens Vs. Pinball",
+    "Metascore": 84,
+    "Release Date": "Apr 26, 2016",
+    "slug": "zen-pinball-2-aliens-vs-pinball"
+  },
+  {
+    "Rank": 199,
+    "Title": "Hatsune Miku: Project Diva Future Tone - Future Sound",
+    "Metascore": 84,
+    "Release Date": "Jan 10, 2017",
+    "slug": "hatsune-miku-project-diva-future-tone-future-sound"
+  },
+  {
+    "Rank": 200,
+    "Title": "Hatsune Miku: Project Diva Future Tone - Colorful Tone",
+    "Metascore": 84,
+    "Release Date": "Jan 10, 2017",
+    "slug": "hatsune-miku-project-diva-future-tone-colorful-tone"
+  },
+  {
+    "Rank": 201,
+    "Title": "Marvel's Spider-Man: Miles Morales",
+    "Metascore": 84,
+    "Release Date": "Nov 12, 2020",
+    "slug": "marvel-s-spider-man-miles-morales"
+  },
+  {
+    "Rank": 202,
+    "Title": "Call of Duty: Black Ops 4",
+    "Metascore": 84,
+    "Release Date": "Oct 12, 2018",
+    "slug": "call-of-duty-black-ops-4"
+  },
+  {
+    "Rank": 203,
+    "Title": "Ghost of Tsushima",
+    "Metascore": 84,
+    "Release Date": "Jul 17, 2020",
+    "slug": "ghost-of-tsushima"
+  },
+  {
+    "Rank": 204,
+    "Title": "The Yakuza Remastered Collection",
+    "Metascore": 83,
+    "Release Date": "Aug 20, 2019",
+    "slug": "the-yakuza-remastered-collection"
+  },
+  {
+    "Rank": 205,
+    "Title": "Guacamelee! 2",
+    "Metascore": 83,
+    "Release Date": "Aug 21, 2018",
+    "slug": "guacamelee-2"
+  },
+  {
+    "Rank": 206,
+    "Title": "Persona 5 Strikers",
+    "Metascore": 83,
+    "Release Date": "Feb 23, 2021",
+    "slug": "persona-5-strikers"
+  },
+  {
+    "Rank": 207,
+    "Title": "Final Fantasy XV",
+    "Metascore": 83,
+    "Release Date": "Nov 29, 2016",
+    "slug": "final-fantasy-xv"
+  },
+  {
+    "Rank": 208,
+    "Title": "Madden NFL 20",
+    "Metascore": 83,
+    "Release Date": "Aug 2, 2019",
+    "slug": "madden-nfl-20"
+  },
+  {
+    "Rank": 209,
+    "Title": "Watch Dogs 2",
+    "Metascore": 83,
+    "Release Date": "Nov 15, 2016",
+    "slug": "watch-dogs-2"
+  },
+  {
+    "Rank": 210,
+    "Title": "Demon's Souls (PS5/PS4 listings)",
+    "Metascore": 83,
+    "Release Date": "Nov 12, 2020",
+    "slug": "demon-s-souls-ps5-ps4-listings"
+  },
+  {
+    "Rank": 211,
+    "Title": "The Division 2",
+    "Metascore": 83,
+    "Release Date": "Mar 15, 2019",
+    "slug": "the-division-2"
+  },
+  {
+    "Rank": 212,
+    "Title": "Mad Max",
+    "Metascore": 83,
+    "Release Date": "Sep 1, 2015",
+    "slug": "mad-max"
+  },
+  {
+    "Rank": 213,
+    "Title": " The LEGO Movie Videogame",
+    "Metascore": 83,
+    "Release Date": "Feb 7, 2014",
+    "slug": "the-lego-movie-videogame"
+  },
+  {
+    "Rank": 214,
+    "Title": "Need for Speed Heat",
+    "Metascore": 83,
+    "Release Date": "Nov 8, 2019",
+    "slug": "need-for-speed-heat"
+  },
+  {
+    "Rank": 215,
+    "Title": "For Honor",
+    "Metascore": 83,
+    "Release Date": "Feb 14, 2017",
+    "slug": "for-honor"
+  },
+  {
+    "Rank": 216,
+    "Title": "The Surge 2",
+    "Metascore": 82,
+    "Release Date": "Sep 24, 2019",
+    "slug": "the-surge-2"
+  },
+  {
+    "Rank": 217,
+    "Title": "Call of Duty: Black Ops III",
+    "Metascore": 82,
+    "Release Date": "Nov 6, 2015",
+    "slug": "call-of-duty-black-ops-iii"
+  },
+  {
+    "Rank": 218,
+    "Title": "Skyrim Special Edition",
+    "Metascore": 82,
+    "Release Date": "Oct 28, 2016",
+    "slug": "skyrim-special-edition"
+  },
+  {
+    "Rank": 219,
+    "Title": "The Evil Within 2",
+    "Metascore": 82,
+    "Release Date": "Oct 13, 2017",
+    "slug": "the-evil-within-2"
+  },
+  {
+    "Rank": 220,
+    "Title": "Borderlands: The Handsome Collection",
+    "Metascore": 82,
+    "Release Date": "Mar 24, 2015",
+    "slug": "borderlands-the-handsome-collection"
+  },
+  {
+    "Rank": 221,
+    "Title": "The Long Dark",
+    "Metascore": 82,
+    "Release Date": "Aug 1, 2017",
+    "slug": "the-long-dark"
+  },
+  {
+    "Rank": 222,
+    "Title": "Life Is Strange 2: Episode 1",
+    "Metascore": 82,
+    "Release Date": "Sep 27, 2018",
+    "slug": "life-is-strange-2-episode-1"
+  },
+  {
+    "Rank": 223,
+    "Title": "South Park: The Fractured but Whole",
+    "Metascore": 82,
+    "Release Date": "Oct 17, 2017",
+    "slug": "south-park-the-fractured-but-whole"
+  },
+  {
+    "Rank": 224,
+    "Title": "Darksiders III",
+    "Metascore": 82,
+    "Release Date": "Nov 27, 2018",
+    "slug": "darksiders-iii"
+  },
+  {
+    "Rank": 225,
+    "Title": "The Outer Worlds (alternate listing)",
+    "Metascore": 82,
+    "Release Date": "Oct 25, 2019",
+    "slug": "the-outer-worlds-alternate-listing"
+  },
+  {
+    "Rank": 226,
+    "Title": "State of Decay 2",
+    "Metascore": 82,
+    "Release Date": "May 22, 2018",
+    "slug": "state-of-decay-2"
+  },
+  {
+    "Rank": 227,
+    "Title": "Syberia 3",
+    "Metascore": 82,
+    "Release Date": "Apr 20, 2017",
+    "slug": "syberia-3"
+  },
+  {
+    "Rank": 228,
+    "Title": "EA Sports UFC 3",
+    "Metascore": 82,
+    "Release Date": "Feb 2, 2018",
+    "slug": "ea-sports-ufc-3"
+  },
+  {
+    "Rank": 229,
+    "Title": "Alan Wake Remastered",
+    "Metascore": 82,
+    "Release Date": "Oct 5, 2021",
+    "slug": "alan-wake-remastered"
+  },
+  {
+    "Rank": 230,
+    "Title": "FIFA 18",
+    "Metascore": 82,
+    "Release Date": "Sep 29, 2017",
+    "slug": "fifa-18"
+  },
+  {
+    "Rank": 231,
+    "Title": "Tom Clancy's Rainbow Six Siege",
+    "Metascore": 82,
+    "Release Date": "Dec 1, 2015",
+    "slug": "tom-clancy-s-rainbow-six-siege"
+  },
+  {
+    "Rank": 232,
+    "Title": "Plants vs. Zombies: Battle for Neighborville",
+    "Metascore": 82,
+    "Release Date": "Oct 18, 2019",
+    "slug": "plants-vs-zombies-battle-for-neighborville"
+  },
+  {
+    "Rank": 233,
+    "Title": "A Plague Tale: Innocence",
+    "Metascore": 82,
+    "Release Date": "May 14, 2019",
+    "slug": "a-plague-tale-innocence"
+  },
+  {
+    "Rank": 234,
+    "Title": "Gears of War 4 (PC/Xbox ports on Metacritic)",
+    "Metascore": 82,
+    "Release Date": "Oct 11, 2016",
+    "slug": "gears-of-war-4-pc-xbox-ports-on-metacritic"
+  },
+  {
+    "Rank": 235,
+    "Title": "Mass Effect Andromeda",
+    "Metascore": 82,
+    "Release Date": "Mar 21, 2017",
+    "slug": "mass-effect-andromeda"
+  },
+  {
+    "Rank": 236,
+    "Title": "Wolfenstein: The Old Blood",
+    "Metascore": 82,
+    "Release Date": "May 5, 2015",
+    "slug": "wolfenstein-the-old-blood"
+  },
+  {
+    "Rank": 237,
+    "Title": "Call of Duty: WWII",
+    "Metascore": 82,
+    "Release Date": "Nov 3, 2017",
+    "slug": "call-of-duty-wwii"
+  },
+  {
+    "Rank": 238,
+    "Title": "Mafia III",
+    "Metascore": 82,
+    "Release Date": "Oct 7, 2016",
+    "slug": "mafia-iii"
+  },
+  {
+    "Rank": 239,
+    "Title": "Shadow of the Tomb Raider",
+    "Metascore": 82,
+    "Release Date": "Sep 14, 2018",
+    "slug": "shadow-of-the-tomb-raider"
+  },
+  {
+    "Rank": 240,
+    "Title": "Kingdom Come: Deliverance",
+    "Metascore": 81,
+    "Release Date": "Feb 13, 2018",
+    "slug": "kingdom-come-deliverance"
+  },
+  {
+    "Rank": 241,
+    "Title": "Rage 2",
+    "Metascore": 81,
+    "Release Date": "May 14, 2019",
+    "slug": "rage-2"
+  },
+  {
+    "Rank": 242,
+    "Title": "No Man's Sky (Next update listing)",
+    "Metascore": 81,
+    "Release Date": "Aug 9, 2019",
+    "slug": "no-man-s-sky-next-update-listing"
+  },
+  {
+    "Rank": 243,
+    "Title": "Middle-earth: Shadow of War",
+    "Metascore": 81,
+    "Release Date": "Oct 10, 2017",
+    "slug": "middle-earth-shadow-of-war"
+  },
+  {
+    "Rank": 244,
+    "Title": "Spyro Reignited Trilogy",
+    "Metascore": 81,
+    "Release Date": "Nov 13, 2018",
+    "slug": "spyro-reignited-trilogy"
+  },
+  {
+    "Rank": 245,
+    "Title": "Tekken 7",
+    "Metascore": 81,
+    "Release Date": "Jun 2, 2017",
+    "slug": "tekken-7"
+  },
+  {
+    "Rank": 246,
+    "Title": "NBA 2K18",
+    "Metascore": 81,
+    "Release Date": "Sep 19, 2017",
+    "slug": "nba-2k18"
+  },
+  {
+    "Rank": 247,
+    "Title": "The Last Guardian",
+    "Metascore": 81,
+    "Release Date": "Dec 6, 2016",
+    "slug": "the-last-guardian"
+  },
+  {
+    "Rank": 248,
+    "Title": "Watch Dogs Legion",
+    "Metascore": 81,
+    "Release Date": "Oct 29, 2020",
+    "slug": "watch-dogs-legion"
+  },
+  {
+    "Rank": 249,
+    "Title": "Marvel vs. Capcom: Infinite",
+    "Metascore": 81,
+    "Release Date": "Sep 19, 2017",
+    "slug": "marvel-vs-capcom-infinite"
+  },
+  {
+    "Rank": 250,
+    "Title": "Sleeping Dogs: Definitive Edition",
+    "Metascore": 81,
+    "Release Date": "Oct 14, 2014",
+    "slug": "sleeping-dogs-definitive-edition"
+  },
+  {
+    "Rank": 251,
+    "Title": "The Medium (PS5/PS4 release)",
+    "Metascore": 81,
+    "Release Date": "Jan 28, 2021",
+    "slug": "the-medium-ps5-ps4-release"
+  },
+  {
+    "Rank": 252,
+    "Title": "Darkest Dungeon",
+    "Metascore": 81,
+    "Release Date": "Jan 19, 2016",
+    "slug": "darkest-dungeon"
+  },
+  {
+    "Rank": 253,
+    "Title": "The Banner Saga 3",
+    "Metascore": 81,
+    "Release Date": "Jul 24, 2018",
+    "slug": "the-banner-saga-3"
+  },
+  {
+    "Rank": 254,
+    "Title": "Tropico 6",
+    "Metascore": 81,
+    "Release Date": "Mar 29, 2019",
+    "slug": "tropico-6"
+  },
+  {
+    "Rank": 255,
+    "Title": "The Technomancer",
+    "Metascore": 80,
+    "Release Date": "Jun 28, 2016",
+    "slug": "the-technomancer"
+  },
+  {
+    "Rank": 256,
+    "Title": "Baldur's Gate: Siege of Dragonspear (collection listing)",
+    "Metascore": 80,
+    "Release Date": "Oct 26, 2016",
+    "slug": "baldur-s-gate-siege-of-dragonspear-collection-listing"
+  },
+  {
+    "Rank": 257,
+    "Title": "Cities: Skylines",
+    "Metascore": 80,
+    "Release Date": "Jun 10, 2015",
+    "slug": "cities-skylines"
+  },
+  {
+    "Rank": 258,
+    "Title": "Dying Light",
+    "Metascore": 80,
+    "Release Date": "Jan 27, 2015",
+    "slug": "dying-light"
+  },
+  {
+    "Rank": 259,
+    "Title": "Elex",
+    "Metascore": 80,
+    "Release Date": "Oct 17, 2017",
+    "slug": "elex"
+  },
+  {
+    "Rank": 260,
+    "Title": "The Walking Dead: A New Frontier - Episode 1",
+    "Metascore": 80,
+    "Release Date": "Dec 20, 2016",
+    "slug": "the-walking-dead-a-new-frontier-episode-1"
+  },
+  {
+    "Rank": 261,
+    "Title": "Metro Redux",
+    "Metascore": 80,
+    "Release Date": "Aug 26, 2014",
+    "slug": "metro-redux"
+  },
+  {
+    "Rank": 262,
+    "Title": "The Order: 1886",
+    "Metascore": 80,
+    "Release Date": "Feb 20, 2015",
+    "slug": "the-order-1886"
+  },
+  {
+    "Rank": 263,
+    "Title": "GreedFall",
+    "Metascore": 80,
+    "Release Date": "Sep 10, 2019",
+    "slug": "greedfall"
+  },
+  {
+    "Rank": 264,
+    "Title": "Anno 2205",
+    "Metascore": 80,
+    "Release Date": "Nov 3, 2015",
+    "slug": "anno-2205"
+  },
+  {
+    "Rank": 265,
+    "Title": "Kingdom Hearts III",
+    "Metascore": 80,
+    "Release Date": "Jan 29, 2019",
+    "slug": "kingdom-hearts-iii"
+  },
+  {
+    "Rank": 266,
+    "Title": "The Crew 2",
+    "Metascore": 80,
+    "Release Date": "Jun 29, 2018",
+    "slug": "the-crew-2"
+  },
+  {
+    "Rank": 267,
+    "Title": "Detroit: Become Human",
+    "Metascore": 80,
+    "Release Date": "May 25, 2018",
+    "slug": "detroit-become-human"
+  },
+  {
+    "Rank": 268,
+    "Title": "The Sims 4",
+    "Metascore": 80,
+    "Release Date": "Sep 2, 2014",
+    "slug": "the-sims-4"
+  },
+  {
+    "Rank": 269,
+    "Title": "Watch_Dogs (2014)",
+    "Metascore": 80,
+    "Release Date": "May 27, 2014",
+    "slug": "watch-dogs-2014"
+  },
+  {
+    "Rank": 270,
+    "Title": "L.A. Noire Remastered",
+    "Metascore": 80,
+    "Release Date": "Nov 14, 2011",
+    "slug": "l-a-noire-remastered"
+  },
+  {
+    "Rank": 271,
+    "Title": "The Walking Dead: Michonne",
+    "Metascore": 80,
+    "Release Date": "Feb 23, 2016",
+    "slug": "the-walking-dead-michonne"
+  },
+  {
+    "Rank": 272,
+    "Title": "SOMA",
+    "Metascore": 80,
+    "Release Date": "Sep 22, 2016",
+    "slug": "soma"
+  },
+  {
+    "Rank": 273,
+    "Title": "Transformers: Devastation",
+    "Metascore": 80,
+    "Release Date": "Oct 6, 2015",
+    "slug": "transformers-devastation"
+  },
+  {
+    "Rank": 274,
+    "Title": "The Crew",
+    "Metascore": 80,
+    "Release Date": "Dec 2, 2014",
+    "slug": "the-crew"
+  },
+  {
+    "Rank": 275,
+    "Title": "The Surge",
+    "Metascore": 80,
+    "Release Date": "May 16, 2017",
+    "slug": "the-surge"
+  },
+  {
+    "Rank": 276,
+    "Title": "Enslaved: Odyssey to the West",
+    "Metascore": 80,
+    "Release Date": "Oct 9, 2013",
+    "slug": "enslaved-odyssey-to-the-west"
+  },
+  {
+    "Rank": 277,
+    "Title": "Remember Me",
+    "Metascore": 80,
+    "Release Date": "Jun 4, 2013",
+    "slug": "remember-me"
+  },
+  {
+    "Rank": 278,
+    "Title": "Bound by Flame",
+    "Metascore": 80,
+    "Release Date": "May 9, 2014",
+    "slug": "bound-by-flame"
+  },
+  {
+    "Rank": 279,
+    "Title": "Two Point Hospital",
+    "Metascore": 80,
+    "Release Date": "Aug 30, 2018",
+    "slug": "two-point-hospital"
+  },
+  {
+    "Rank": 280,
+    "Title": "The Sinking City",
+    "Metascore": 80,
+    "Release Date": "Jun 27, 2019",
+    "slug": "the-sinking-city"
+  },
+  {
+    "Rank": 281,
+    "Title": "Darksiders II Deathinitive Edition",
+    "Metascore": 80,
+    "Release Date": "Oct 22, 2015",
+    "slug": "darksiders-ii-deathinitive-edition"
+  },
+  {
+    "Rank": 282,
+    "Title": "The Last of Us Part II (alternate listing)",
+    "Metascore": 80,
+    "Release Date": "Jun 19, 2020",
+    "slug": "the-last-of-us-part-ii-alternate-listing"
+  },
+  {
+    "Rank": 283,
+    "Title": "Farming Simulator 19",
+    "Metascore": 80,
+    "Release Date": "Nov 20, 2018",
+    "slug": "farming-simulator-19"
+  },
+  {
+    "Rank": 284,
+    "Title": "WWE 2K20",
+    "Metascore": 79,
+    "Release Date": "Oct 22, 2019",
+    "slug": "wwe-2k20"
+  },
+  {
+    "Rank": 285,
+    "Title": "Fable Fortune",
+    "Metascore": 79,
+    "Release Date": "Feb 22, 2018",
+    "slug": "fable-fortune"
+  },
+  {
+    "Rank": 286,
+    "Title": "Oninaki",
+    "Metascore": 79,
+    "Release Date": "Aug 22, 2019",
+    "slug": "oninaki"
+  },
+  {
+    "Rank": 287,
+    "Title": "Valkyria Chronicles Remastered (alternate listing)",
+    "Metascore": 79,
+    "Release Date": "May 17, 2016",
+    "slug": "valkyria-chronicles-remastered-alternate-listing"
+  },
+  {
+    "Rank": 288,
+    "Title": "The Dark Pictures Anthology: Man of Medan",
+    "Metascore": 79,
+    "Release Date": "Aug 30, 2019",
+    "slug": "the-dark-pictures-anthology-man-of-medan"
+  },
+  {
+    "Rank": 289,
+    "Title": "ADR1FT",
+    "Metascore": 79,
+    "Release Date": "Aug 30, 2016",
+    "slug": "adr1ft"
+  },
+  {
+    "Rank": 290,
+    "Title": "Valiant Hearts: The Great War",
+    "Metascore": 79,
+    "Release Date": "Jun 1, 2014",
+    "slug": "valiant-hearts-the-great-war"
+  },
+  {
+    "Rank": 291,
+    "Title": "Hyper Light Drifter",
+    "Metascore": 79,
+    "Release Date": "Aug 25, 2016",
+    "slug": "hyper-light-drifter"
+  },
+  {
+    "Rank": 292,
+    "Title": "The Flame in the Flood",
+    "Metascore": 79,
+    "Release Date": "Mar 14, 2018",
+    "slug": "the-flame-in-the-flood"
+  },
+  {
+    "Rank": 293,
+    "Title": "Rime",
+    "Metascore": 79,
+    "Release Date": "May 26, 2017",
+    "slug": "rime"
+  },
+  {
+    "Rank": 294,
+    "Title": "Child of Light",
+    "Metascore": 79,
+    "Release Date": "Apr 30, 2014",
+    "slug": "child-of-light"
+  },
+  {
+    "Rank": 295,
+    "Title": "InFAMOUS Second Son",
+    "Metascore": 79,
+    "Release Date": "Mar 21, 2014",
+    "slug": "infamous-second-son"
+  },
+  {
+    "Rank": 296,
+    "Title": "Sleeping Dogs (original listing)",
+    "Metascore": 79,
+    "Release Date": "Aug 2014",
+    "slug": "sleeping-dogs-original-listing"
+  },
+  {
+    "Rank": 297,
+    "Title": "Battlefield Hardline",
+    "Metascore": 79,
+    "Release Date": "Mar 17, 2015",
+    "slug": "battlefield-hardline"
+  },
+  {
+    "Rank": 298,
+    "Title": "The Bureau: XCOM Declassified",
+    "Metascore": 79,
+    "Release Date": "Aug 20, 2013",
+    "slug": "the-bureau-xcom-declassified"
+  },
+  {
+    "Rank": 299,
+    "Title": "Kena: Bridge of Spirits (PS4 listing)",
+    "Metascore": 79,
+    "Release Date": "Sep 21, 2021",
+    "slug": "kena-bridge-of-spirits-ps4-listing"
+  },
+  {
+    "Rank": 300,
+    "Title": "No Heroes Die",
+    "Metascore": 79,
+    "Release Date": "Jan 1, 2015",
+    "slug": "no-heroes-die"
+  },
+  {
+    "Rank": 301,
+    "Title": "Battlefield V",
+    "Metascore": 79,
+    "Release Date": "Nov 20, 2018",
+    "slug": "battlefield-v"
+  },
+  {
+    "Rank": 302,
+    "Title": "The Division",
+    "Metascore": 79,
+    "Release Date": "Mar 8, 2016",
+    "slug": "the-division"
+  },
+  {
+    "Rank": 303,
+    "Title": "Call of Duty: Infinite Warfare",
+    "Metascore": 79,
+    "Release Date": "Nov 4, 2016",
+    "slug": "call-of-duty-infinite-warfare"
+  },
+  {
+    "Rank": 304,
+    "Title": "Mirror's Edge Catalyst",
+    "Metascore": 79,
+    "Release Date": "Jun 7, 2016",
+    "slug": "mirror-s-edge-catalyst"
+  },
+  {
+    "Rank": 305,
+    "Title": "F1 2016",
+    "Metascore": 79,
+    "Release Date": "Aug 23, 2016",
+    "slug": "f1-2016"
+  },
+  {
+    "Rank": 306,
+    "Title": "The Evil Within",
+    "Metascore": 79,
+    "Release Date": "Oct 14, 2014",
+    "slug": "the-evil-within"
+  },
+  {
+    "Rank": 307,
+    "Title": "Wolfenstein: Youngblood",
+    "Metascore": 79,
+    "Release Date": "Jul 26, 2019",
+    "slug": "wolfenstein-youngblood"
+  },
+  {
+    "Rank": 308,
+    "Title": "No Man's Sky (original release listing)",
+    "Metascore": 79,
+    "Release Date": "Aug 9, 2016",
+    "slug": "no-man-s-sky-original-release-listing"
+  },
+  {
+    "Rank": 309,
+    "Title": "Forza Horizon 4 (not on PS4) - placeholder removed",
+    "Metascore": 79,
+    "Release Date": "",
+    "slug": "forza-horizon-4-not-on-ps4-placeholder-removed"
+  },
+  {
+    "Rank": 310,
+    "Title": "Robo Recall (VR listing)",
+    "Metascore": 79,
+    "Release Date": "Apr 6, 2017",
+    "slug": "robo-recall-vr-listing"
+  },
+  {
+    "Rank": 311,
+    "Title": "LEGO Marvel Super Heroes 2",
+    "Metascore": 79,
+    "Release Date": "Nov 14, 2017",
+    "slug": "lego-marvel-super-heroes-2"
+  },
+  {
+    "Rank": 312,
+    "Title": "The Darkness II",
+    "Metascore": 79,
+    "Release Date": "Dec 7, 2012",
+    "slug": "the-darkness-ii"
+  },
+  {
+    "Rank": 313,
+    "Title": "The Crew (alternate)",
+    "Metascore": 79,
+    "Release Date": "Dec 2, 2014",
+    "slug": "the-crew-alternate"
+  },
+  {
+    "Rank": 314,
+    "Title": "Rising Storm 2: Vietnam",
+    "Metascore": 79,
+    "Release Date": "Mar 27, 2017",
+    "slug": "rising-storm-2-vietnam"
+  },
+  {
+    "Rank": 315,
+    "Title": "Duke Nukem 3D: 20th Anniversary World Tour",
+    "Metascore": 79,
+    "Release Date": "Oct 11, 2016",
+    "slug": "duke-nukem-3d-20th-anniversary-world-tour"
+  },
+  {
+    "Rank": 316,
+    "Title": "The Walking Dead: A New Frontier - Season Pass",
+    "Metascore": 79,
+    "Release Date": "2016-12-20",
+    "slug": "the-walking-dead-a-new-frontier-season-pass"
+  },
+  {
+    "Rank": 317,
+    "Title": "Watch Dogs",
+    "Metascore": 79,
+    "Release Date": "May 27, 2014",
+    "slug": "watch-dogs"
+  },
+  {
+    "Rank": 318,
+    "Title": "Final Fantasy XV Royal Edition (alternate listing)",
+    "Metascore": 79,
+    "Release Date": "Mar 6, 2018",
+    "slug": "final-fantasy-xv-royal-edition-alternate-listing"
+  },
+  {
+    "Rank": 319,
+    "Title": "Killing Floor 2",
+    "Metascore": 79,
+    "Release Date": "Nov 18, 2016",
+    "slug": "killing-floor-2"
+  },
+  {
+    "Rank": 320,
+    "Title": "Battleborn",
+    "Metascore": 79,
+    "Release Date": "May 3, 2016",
+    "slug": "battleborn"
+  },
+  {
+    "Rank": 321,
+    "Title": "Divinity: Original Sin - Enhanced Edition (alternate)",
+    "Metascore": 79,
+    "Release Date": "2015-10-27",
+    "slug": "divinity-original-sin-enhanced-edition-alternate"
+  },
+  {
+    "Rank": 322,
+    "Title": "Darksiders Warmastered Edition",
+    "Metascore": 78,
+    "Release Date": "Nov 29, 2016",
+    "slug": "darksiders-warmastered-edition"
+  },
+  {
+    "Rank": 323,
+    "Title": "Bully: Scholarship Edition",
+    "Metascore": 78,
+    "Release Date": "Oct 4, 2006",
+    "slug": "bully-scholarship-edition"
+  },
+  {
+    "Rank": 324,
+    "Title": "Spec Ops: The Line",
+    "Metascore": 78,
+    "Release Date": "Jun 26, 2012",
+    "slug": "spec-ops-the-line"
+  },
+  {
+    "Rank": 325,
+    "Title": "The Crew 2 (alternate)",
+    "Metascore": 78,
+    "Release Date": "Jun 29, 2018",
+    "slug": "the-crew-2-alternate"
+  },
+  {
+    "Rank": 326,
+    "Title": "Battlefield 3",
+    "Metascore": 78,
+    "Release Date": "Oct 25, 2011",
+    "slug": "battlefield-3"
+  },
+  {
+    "Rank": 327,
+    "Title": "Elder Scrolls Online (console release)",
+    "Metascore": 78,
+    "Release Date": "Jun 9, 2015",
+    "slug": "elder-scrolls-online-console-release"
+  },
+  {
+    "Rank": 328,
+    "Title": "Marvel's Avengers",
+    "Metascore": 78,
+    "Release Date": "Sep 4, 2020",
+    "slug": "marvel-s-avengers"
+  },
+  {
+    "Rank": 329,
+    "Title": "Anthem",
+    "Metascore": 78,
+    "Release Date": "Feb 22, 2019",
+    "slug": "anthem"
+  },
+  {
+    "Rank": 330,
+    "Title": "Rage",
+    "Metascore": 78,
+    "Release Date": "Oct 4, 2011",
+    "slug": "rage"
+  },
+  {
+    "Rank": 331,
+    "Title": "The Order: 1886 (alternate)",
+    "Metascore": 78,
+    "Release Date": "Feb 20, 2015",
+    "slug": "the-order-1886-alternate"
+  },
+  {
+    "Rank": 332,
+    "Title": "Sonic Forces",
+    "Metascore": 78,
+    "Release Date": "Nov 7, 2017",
+    "slug": "sonic-forces"
+  },
+  {
+    "Rank": 333,
+    "Title": "Mafia II: Definitive Edition",
+    "Metascore": 78,
+    "Release Date": "May 19, 2020",
+    "slug": "mafia-ii-definitive-edition"
+  },
+  {
+    "Rank": 334,
+    "Title": "Madagascar: Escape 2 Africa - Game (placeholder)",
+    "Metascore": 78,
+    "Release Date": "",
+    "slug": "madagascar-escape-2-africa-game-placeholder"
+  },
+  {
+    "Rank": 335,
+    "Title": "The Amazing Spider-Man 2 (game)",
+    "Metascore": 78,
+    "Release Date": "Jun 10, 2014",
+    "slug": "the-amazing-spider-man-2-game"
+  },
+  {
+    "Rank": 336,
+    "Title": "The Walking Dead: Season Two",
+    "Metascore": 78,
+    "Release Date": "Dec 17, 2013",
+    "slug": "the-walking-dead-season-two"
+  },
+  {
+    "Rank": 337,
+    "Title": "Mirror's Edge (original)",
+    "Metascore": 78,
+    "Release Date": "Nov 11, 2008",
+    "slug": "mirror-s-edge-original"
+  },
+  {
+    "Rank": 338,
+    "Title": "Naughty Dog Collection: Legacy (compilation)",
+    "Metascore": 78,
+    "Release Date": "Various",
+    "slug": "naughty-dog-collection-legacy-compilation"
+  },
+  {
+    "Rank": 339,
+    "Title": "The Escapists 2",
+    "Metascore": 78,
+    "Release Date": "Aug 22, 2017",
+    "slug": "the-escapists-2"
+  },
+  {
+    "Rank": 340,
+    "Title": "South Park: The Stick of Truth",
+    "Metascore": 78,
+    "Release Date": "Mar 4, 2014",
+    "slug": "south-park-the-stick-of-truth"
+  },
+  {
+    "Rank": 341,
+    "Title": "Detroit: Become Human (alternate listing)",
+    "Metascore": 78,
+    "Release Date": "May 25, 2018",
+    "slug": "detroit-become-human-alternate-listing"
+  },
+  {
+    "Rank": 342,
+    "Title": "The Golf Club 2019 featuring PGA Tour",
+    "Metascore": 78,
+    "Release Date": "Aug 28, 2018",
+    "slug": "the-golf-club-2019-featuring-pga-tour"
+  },
+  {
+    "Rank": 343,
+    "Title": "Tomb Raider (2013) Definitive Edition",
+    "Metascore": 78,
+    "Release Date": "Jan 28, 2014",
+    "slug": "tomb-raider-2013-definitive-edition"
+  },
+  {
+    "Rank": 344,
+    "Title": "The Witcher 2: Assassins of Kings",
+    "Metascore": 78,
+    "Release Date": "Apr 17, 2012",
+    "slug": "the-witcher-2-assassins-of-kings"
+  },
+  {
+    "Rank": 345,
+    "Title": "Duke Nukem Forever",
+    "Metascore": 78,
+    "Release Date": "Jun 10, 2011",
+    "slug": "duke-nukem-forever"
+  },
+  {
+    "Rank": 346,
+    "Title": "Aliens: Colonial Marines",
+    "Metascore": 78,
+    "Release Date": "Feb 12, 2013",
+    "slug": "aliens-colonial-marines"
+  },
+  {
+    "Rank": 347,
+    "Title": "Spec Ops: The Line (PS4 remaster placeholder)",
+    "Metascore": 78,
+    "Release Date": "",
+    "slug": "spec-ops-the-line-ps4-remaster-placeholder"
+  },
+  {
+    "Rank": 348,
+    "Title": "The Long Dark (alternate listing)",
+    "Metascore": 78,
+    "Release Date": "Aug 1, 2017",
+    "slug": "the-long-dark-alternate-listing"
+  },
+  {
+    "Rank": 349,
+    "Title": "Red Faction: Guerrilla",
+    "Metascore": 78,
+    "Release Date": "Jun 2, 2009",
+    "slug": "red-faction-guerrilla"
+  },
+  {
+    "Rank": 350,
+    "Title": "Just Cause 3",
+    "Metascore": 78,
+    "Release Date": "Dec 1, 2015",
+    "slug": "just-cause-3"
+  },
+  {
+    "Rank": 351,
+    "Title": "Just Cause 4",
+    "Metascore": 77,
+    "Release Date": "Dec 4, 2018",
+    "slug": "just-cause-4"
+  },
+  {
+    "Rank": 352,
+    "Title": "Saints Row IV",
+    "Metascore": 77,
+    "Release Date": "Aug 20, 2013",
+    "slug": "saints-row-iv"
+  },
+  {
+    "Rank": 353,
+    "Title": "Saints Row: Gat out of Hell",
+    "Metascore": 77,
+    "Release Date": "Jan 27, 2015",
+    "slug": "saints-row-gat-out-of-hell"
+  },
+  {
+    "Rank": 354,
+    "Title": "Watch Dogs 2 (alternate listing)",
+    "Metascore": 77,
+    "Release Date": "Nov 15, 2016",
+    "slug": "watch-dogs-2-alternate-listing"
+  },
+  {
+    "Rank": 355,
+    "Title": "Homefront: The Revolution",
+    "Metascore": 77,
+    "Release Date": "May 17, 2016",
+    "slug": "homefront-the-revolution"
+  },
+  {
+    "Rank": 356,
+    "Title": "Dead Island Definitive Edition",
+    "Metascore": 77,
+    "Release Date": "Mar 31, 2016",
+    "slug": "dead-island-definitive-edition"
+  },
+  {
+    "Rank": 357,
+    "Title": "The Darkness",
+    "Metascore": 77,
+    "Release Date": "Feb 20, 2007",
+    "slug": "the-darkness"
+  },
+  {
+    "Rank": 358,
+    "Title": "Condemned: Criminal Origins",
+    "Metascore": 77,
+    "Release Date": "Oct 17, 2005",
+    "slug": "condemned-criminal-origins"
+  },
+  {
+    "Rank": 359,
+    "Title": "Sleeping Dogs (alternate)",
+    "Metascore": 77,
+    "Release Date": "Aug 2014",
+    "slug": "sleeping-dogs-alternate"
+  },
+  {
+    "Rank": 360,
+    "Title": "The Amazing Spider-Man",
+    "Metascore": 77,
+    "Release Date": "Jun 26, 2012",
+    "slug": "the-amazing-spider-man"
+  },
+  {
+    "Rank": 361,
+    "Title": "The Sims 3 (console)",
+    "Metascore": 77,
+    "Release Date": "Jun 1, 2010",
+    "slug": "the-sims-3-console"
+  },
+  {
+    "Rank": 362,
+    "Title": "Farming Simulator 17",
+    "Metascore": 77,
+    "Release Date": "Oct 25, 2016",
+    "slug": "farming-simulator-17"
+  },
+  {
+    "Rank": 363,
+    "Title": "Farming Simulator 2017 (alternate)",
+    "Metascore": 77,
+    "Release Date": "2016-10-25",
+    "slug": "farming-simulator-2017-alternate"
+  },
+  {
+    "Rank": 364,
+    "Title": "Mighty No. 9",
+    "Metascore": 77,
+    "Release Date": "Jun 21, 2016",
+    "slug": "mighty-no-9"
+  },
+  {
+    "Rank": 365,
+    "Title": "Dishonored",
+    "Metascore": 77,
+    "Release Date": "Oct 9, 2012",
+    "slug": "dishonored"
+  },
+  {
+    "Rank": 366,
+    "Title": "Sniper Elite 4",
+    "Metascore": 77,
+    "Release Date": "Feb 14, 2017",
+    "slug": "sniper-elite-4"
+  },
+  {
+    "Rank": 367,
+    "Title": "Sniper Elite 3",
+    "Metascore": 77,
+    "Release Date": "Jun 27, 2014",
+    "slug": "sniper-elite-3"
+  },
+  {
+    "Rank": 368,
+    "Title": "Crackdown 3",
+    "Metascore": 77,
+    "Release Date": "Feb 15, 2019",
+    "slug": "crackdown-3"
+  },
+  {
+    "Rank": 369,
+    "Title": "The Order: 1886 (placeholder duplicate removal)",
+    "Metascore": 77,
+    "Release Date": "",
+    "slug": "the-order-1886-placeholder-duplicate-removal"
+  },
+  {
+    "Rank": 370,
+    "Title": "Rage (alternate)",
+    "Metascore": 77,
+    "Release Date": "Oct 4, 2011",
+    "slug": "rage-alternate"
+  },
+  {
+    "Rank": 371,
+    "Title": "2K Sports College Football 2012 (placeholder)",
+    "Metascore": 76,
+    "Release Date": "",
+    "slug": "2k-sports-college-football-2012-placeholder"
+  },
+  {
+    "Rank": 372,
+    "Title": "Mortal Kombat X",
+    "Metascore": 76,
+    "Release Date": "Apr 14, 2015",
+    "slug": "mortal-kombat-x"
+  },
+  {
+    "Rank": 373,
+    "Title": "Injustice: Gods Among Us",
+    "Metascore": 76,
+    "Release Date": "Apr 16, 2013",
+    "slug": "injustice-gods-among-us"
+  },
+  {
+    "Rank": 374,
+    "Title": "Madden NFL 25 (placeholder)",
+    "Metascore": 76,
+    "Release Date": "",
+    "slug": "madden-nfl-25-placeholder"
+  },
+  {
+    "Rank": 375,
+    "Title": "NCAA Football 14 (placeholder)",
+    "Metascore": 76,
+    "Release Date": "",
+    "slug": "ncaa-football-14-placeholder"
+  },
+  {
+    "Rank": 376,
+    "Title": "Killer Is Dead: Nightmare Edition",
+    "Metascore": 76,
+    "Release Date": "Aug 20, 2014",
+    "slug": "killer-is-dead-nightmare-edition"
+  },
+  {
+    "Rank": 377,
+    "Title": "Rainbow Six: Rogue Spear (placeholder)",
+    "Metascore": 76,
+    "Release Date": "",
+    "slug": "rainbow-six-rogue-spear-placeholder"
+  },
+  {
+    "Rank": 378,
+    "Title": "Call of Duty: Ghosts",
+    "Metascore": 76,
+    "Release Date": "Nov 5, 2013",
+    "slug": "call-of-duty-ghosts"
+  },
+  {
+    "Rank": 379,
+    "Title": "Battlefield Hardline (alternate)",
+    "Metascore": 76,
+    "Release Date": "Mar 17, 2015",
+    "slug": "battlefield-hardline-alternate"
+  },
+  {
+    "Rank": 380,
+    "Title": "Ghost Recon: Wildlands",
+    "Metascore": 76,
+    "Release Date": "Mar 7, 2017",
+    "slug": "ghost-recon-wildlands"
+  },
+  {
+    "Rank": 381,
+    "Title": "Ghost Recon Breakpoint",
+    "Metascore": 76,
+    "Release Date": "Oct 4, 2019",
+    "slug": "ghost-recon-breakpoint"
+  },
+  {
+    "Rank": 382,
+    "Title": "For Honor (alternate)",
+    "Metascore": 76,
+    "Release Date": "Feb 14, 2017",
+    "slug": "for-honor-alternate"
+  },
+  {
+    "Rank": 383,
+    "Title": "Plants vs. Zombies: Garden Warfare 2 (alternate)",
+    "Metascore": 76,
+    "Release Date": "May 23, 2016",
+    "slug": "plants-vs-zombies-garden-warfare-2-alternate"
+  },
+  {
+    "Rank": 384,
+    "Title": "Telltale's Game of Thrones",
+    "Metascore": 76,
+    "Release Date": "Dec 2, 2014",
+    "slug": "telltale-s-game-of-thrones"
+  },
+  {
+    "Rank": 385,
+    "Title": "The Order: 1886 (clean placeholder)",
+    "Metascore": 76,
+    "Release Date": "",
+    "slug": "the-order-1886-clean-placeholder"
+  },
+  {
+    "Rank": 386,
+    "Title": "Lords of the Fallen (2014)",
+    "Metascore": 76,
+    "Release Date": "Oct 28, 2014",
+    "slug": "lords-of-the-fallen-2014"
+  },
+  {
+    "Rank": 387,
+    "Title": "Bound by Flame (alternate)",
+    "Metascore": 76,
+    "Release Date": "May 9, 2014",
+    "slug": "bound-by-flame-alternate"
+  },
+  {
+    "Rank": 388,
+    "Title": "Kinect Sports Rivals (placeholder)",
+    "Metascore": 76,
+    "Release Date": "",
+    "slug": "kinect-sports-rivals-placeholder"
+  },
+  {
+    "Rank": 389,
+    "Title": "The Amazing Spider-Man 2 (alternate)",
+    "Metascore": 76,
+    "Release Date": "Jun 10, 2014",
+    "slug": "the-amazing-spider-man-2-alternate"
+  },
+  {
+    "Rank": 390,
+    "Title": "The Bureau: XCOM Declassified (alternate)",
+    "Metascore": 76,
+    "Release Date": "Aug 20, 2013",
+    "slug": "the-bureau-xcom-declassified-alternate"
+  },
+  {
+    "Rank": 391,
+    "Title": "The Crew (alternate 2)",
+    "Metascore": 75,
+    "Release Date": "Dec 2, 2014",
+    "slug": "the-crew-alternate-2"
+  },
+  {
+    "Rank": 392,
+    "Title": "The Order: 1886 (final placeholder)",
+    "Metascore": 75,
+    "Release Date": "",
+    "slug": "the-order-1886-final-placeholder"
+  },
+  {
+    "Rank": 393,
+    "Title": "Hydrophobia: Prophecy (placeholder)",
+    "Metascore": 75,
+    "Release Date": "",
+    "slug": "hydrophobia-prophecy-placeholder"
+  },
+  {
+    "Rank": 394,
+    "Title": "Driver: San Francisco",
+    "Metascore": 75,
+    "Release Date": "Jun 28, 2011",
+    "slug": "driver-san-francisco"
+  },
+  {
+    "Rank": 395,
+    "Title": "Aliens: Colonial Marines (alternate)",
+    "Metascore": 75,
+    "Release Date": "Feb 12, 2013",
+    "slug": "aliens-colonial-marines-alternate"
+  },
+  {
+    "Rank": 396,
+    "Title": "Duke Nukem Forever (alternate)",
+    "Metascore": 75,
+    "Release Date": "Jun 10, 2011",
+    "slug": "duke-nukem-forever-alternate"
+  },
+  {
+    "Rank": 397,
+    "Title": "Rambo: The Video Game (placeholder)",
+    "Metascore": 75,
+    "Release Date": "",
+    "slug": "rambo-the-video-game-placeholder"
+  },
+  {
+    "Rank": 398,
+    "Title": "The Amazing Spider-Man (alternate)",
+    "Metascore": 75,
+    "Release Date": "Jun 26, 2012",
+    "slug": "the-amazing-spider-man-alternate"
+  },
+  {
+    "Rank": 399,
+    "Title": "Duke Nukem 3D (alternate)",
+    "Metascore": 75,
+    "Release Date": "Oct 11, 2016",
+    "slug": "duke-nukem-3d-alternate"
+  },
+  {
+    "Rank": 400,
+    "Title": "No Man's Sky (final alternate)",
+    "Metascore": 75,
+    "Release Date": "Aug 9, 2016",
+    "slug": "no-man-s-sky-final-alternate"
+  },
+  {
+    "Rank": 401,
+    "Title": "Warframe (PS4)",
+    "Metascore": 75,
+    "Release Date": "Nov 20, 2013",
+    "slug": "warframe-ps4"
+  },
+  {
+    "Rank": 402,
+    "Title": "Tom Clancy's The Division (alternate)",
+    "Metascore": 75,
+    "Release Date": "Mar 8, 2016",
+    "slug": "tom-clancy-s-the-division-alternate"
+  },
+  {
+    "Rank": 403,
+    "Title": "Call of Duty: Advanced Warfare",
+    "Metascore": 75,
+    "Release Date": "Nov 3, 2014",
+    "slug": "call-of-duty-advanced-warfare"
+  },
+  {
+    "Rank": 404,
+    "Title": "LEGO City Undercover",
+    "Metascore": 75,
+    "Release Date": "Apr 4, 2017",
+    "slug": "lego-city-undercover"
+  },
+  {
+    "Rank": 405,
+    "Title": "Plants vs. Zombies: Garden Warfare",
+    "Metascore": 75,
+    "Release Date": "Feb 25, 2014",
+    "slug": "plants-vs-zombies-garden-warfare"
+  },
+  {
+    "Rank": 406,
+    "Title": "Tales of Berseria",
+    "Metascore": 75,
+    "Release Date": "Jan 27, 2017",
+    "slug": "tales-of-berseria"
+  },
+  {
+    "Rank": 407,
+    "Title": "LEGO Marvel's Avengers",
+    "Metascore": 75,
+    "Release Date": "Jan 26, 2016",
+    "slug": "lego-marvel-s-avengers"
+  },
+  {
+    "Rank": 408,
+    "Title": "The Crew (another listing)",
+    "Metascore": 75,
+    "Release Date": "Dec 2, 2014",
+    "slug": "the-crew-another-listing"
+  },
+  {
+    "Rank": 409,
+    "Title": "Mafia II (PS4 release)",
+    "Metascore": 75,
+    "Release Date": "May 19, 2020",
+    "slug": "mafia-ii-ps4-release"
+  },
+  {
+    "Rank": 410,
+    "Title": "NBA Live 15",
+    "Metascore": 75,
+    "Release Date": "Oct 28, 2014",
+    "slug": "nba-live-15"
+  },
+  {
+    "Rank": 411,
+    "Title": "Need for Speed (2015)",
+    "Metascore": 74,
+    "Release Date": "Mar 3, 2015",
+    "slug": "need-for-speed-2015"
+  },
+  {
+    "Rank": 412,
+    "Title": "Rugby 15",
+    "Metascore": 74,
+    "Release Date": "Mar 10, 2015",
+    "slug": "rugby-15"
+  },
+  {
+    "Rank": 413,
+    "Title": "Sid Meier's Civilization: Beyond Earth",
+    "Metascore": 74,
+    "Release Date": "Oct 24, 2014",
+    "slug": "sid-meier-s-civilization-beyond-earth"
+  },
+  {
+    "Rank": 414,
+    "Title": "Sonic Lost World (PS4 listing)",
+    "Metascore": 74,
+    "Release Date": "Nov 18, 2013",
+    "slug": "sonic-lost-world-ps4-listing"
+  },
+  {
+    "Rank": 415,
+    "Title": "DiRT 3 Complete Edition",
+    "Metascore": 74,
+    "Release Date": "Oct 2, 2014",
+    "slug": "dirt-3-complete-edition"
+  },
+  {
+    "Rank": 416,
+    "Title": "The Witcher Adventure Game",
+    "Metascore": 74,
+    "Release Date": "Nov 29, 2014",
+    "slug": "the-witcher-adventure-game"
+  },
+  {
+    "Rank": 417,
+    "Title": "Family Guy: Back to the Multiverse",
+    "Metascore": 74,
+    "Release Date": "Oct 26, 2012",
+    "slug": "family-guy-back-to-the-multiverse"
+  },
+  {
+    "Rank": 418,
+    "Title": "The Golf Club 2",
+    "Metascore": 74,
+    "Release Date": "Oct 13, 2017",
+    "slug": "the-golf-club-2"
+  },
+  {
+    "Rank": 419,
+    "Title": "MX vs. ATV Supercross",
+    "Metascore": 74,
+    "Release Date": "Mar 29, 2018",
+    "slug": "mx-vs-atv-supercross"
+  },
+  {
+    "Rank": 420,
+    "Title": "Hyperdimension Neptunia Re;Birth",
+    "Metascore": 74,
+    "Release Date": "Feb 9, 2016",
+    "slug": "hyperdimension-neptunia-re-birth"
+  },
+  {
+    "Rank": 421,
+    "Title": "WRC 5",
+    "Metascore": 74,
+    "Release Date": "Oct 6, 2015",
+    "slug": "wrc-5"
+  },
+  {
+    "Rank": 422,
+    "Title": "MXGP2",
+    "Metascore": 74,
+    "Release Date": "Jun 17, 2016",
+    "slug": "mxgp2"
+  },
+  {
+    "Rank": 423,
+    "Title": "Project CARS",
+    "Metascore": 74,
+    "Release Date": "May 7, 2015",
+    "slug": "project-cars"
+  },
+  {
+    "Rank": 424,
+    "Title": "Rugby World Cup 2015",
+    "Metascore": 74,
+    "Release Date": "Sep 17, 2015",
+    "slug": "rugby-world-cup-2015"
+  },
+  {
+    "Rank": 425,
+    "Title": "The Amazing Spider-Man 2 (alternate)",
+    "Metascore": 74,
+    "Release Date": "Jun 10, 2014",
+    "slug": "the-amazing-spider-man-2-alternate"
+  },
+  {
+    "Rank": 426,
+    "Title": "Kinect Sports Rivals (alt)",
+    "Metascore": 74,
+    "Release Date": "May 2016",
+    "slug": "kinect-sports-rivals-alt"
+  },
+  {
+    "Rank": 427,
+    "Title": "Toukiden: Kiwami",
+    "Metascore": 73,
+    "Release Date": "Feb 23, 2016",
+    "slug": "toukiden-kiwami"
+  },
+  {
+    "Rank": 428,
+    "Title": "Valiant Hearts (alternate)",
+    "Metascore": 73,
+    "Release Date": "Jun 1, 2014",
+    "slug": "valiant-hearts-alternate"
+  },
+  {
+    "Rank": 429,
+    "Title": "Two Worlds II: Castle Defense",
+    "Metascore": 73,
+    "Release Date": "2011-11-29",
+    "slug": "two-worlds-ii-castle-defense"
+  },
+  {
+    "Rank": 430,
+    "Title": "Lara Croft and the Temple of Osiris",
+    "Metascore": 73,
+    "Release Date": "Jan 28, 2015",
+    "slug": "lara-croft-and-the-temple-of-osiris"
+  },
+  {
+    "Rank": 431,
+    "Title": "The Escapists (alternate)",
+    "Metascore": 73,
+    "Release Date": "Feb 13, 2015",
+    "slug": "the-escapists-alternate"
+  },
+  {
+    "Rank": 432,
+    "Title": "Maiden & The Monster (placeholder)",
+    "Metascore": 73,
+    "Release Date": "",
+    "slug": "maiden-and-the-monster-placeholder"
+  },
+  {
+    "Rank": 433,
+    "Title": "Battlefield: Bad Company 2 (PS4 listing)",
+    "Metascore": 73,
+    "Release Date": "Mar 2, 2010",
+    "slug": "battlefield-bad-company-2-ps4-listing"
+  },
+  {
+    "Rank": 434,
+    "Title": "Pro Evolution Soccer 2018 (alt)",
+    "Metascore": 73,
+    "Release Date": "Sep 12, 2017",
+    "slug": "pro-evolution-soccer-2018-alt"
+  },
+  {
+    "Rank": 435,
+    "Title": "Risen 3: Titan Lords",
+    "Metascore": 73,
+    "Release Date": "Aug 12, 2014",
+    "slug": "risen-3-titan-lords"
+  },
+  {
+    "Rank": 436,
+    "Title": "The Walking Dead: Season One (remaster)",
+    "Metascore": 73,
+    "Release Date": "2014-11-04",
+    "slug": "the-walking-dead-season-one-remaster"
+  },
+  {
+    "Rank": 437,
+    "Title": "Metro: Last Light Redux (alternate)",
+    "Metascore": 73,
+    "Release Date": "Aug 26, 2014",
+    "slug": "metro-last-light-redux-alternate"
+  },
+  {
+    "Rank": 438,
+    "Title": "Naruto Shippuden: Ultimate Ninja Storm 4",
+    "Metascore": 73,
+    "Release Date": "Feb 5, 2016",
+    "slug": "naruto-shippuden-ultimate-ninja-storm-4"
+  },
+  {
+    "Rank": 439,
+    "Title": "Sniper Ghost Warrior 3",
+    "Metascore": 73,
+    "Release Date": "Apr 25, 2017",
+    "slug": "sniper-ghost-warrior-3"
+  },
+  {
+    "Rank": 440,
+    "Title": "Tokyo Jungle",
+    "Metascore": 73,
+    "Release Date": "Aug 7, 2012",
+    "slug": "tokyo-jungle"
+  },
+  {
+    "Rank": 441,
+    "Title": "Homefront (original listing)",
+    "Metascore": 73,
+    "Release Date": "May 28, 2011",
+    "slug": "homefront-original-listing"
+  },
+  {
+    "Rank": 442,
+    "Title": "Red Dead Redemption (back-compat placeholder)",
+    "Metascore": 73,
+    "Release Date": "May 18, 2010",
+    "slug": "red-dead-redemption-back-compat-placeholder"
+  },
+  {
+    "Rank": 443,
+    "Title": "LEGO Jurassic World",
+    "Metascore": 72,
+    "Release Date": "Jun 12, 2015",
+    "slug": "lego-jurassic-world"
+  },
+  {
+    "Rank": 444,
+    "Title": "The Amazing Spider-Man (alternate 2)",
+    "Metascore": 72,
+    "Release Date": "Jun 26, 2012",
+    "slug": "the-amazing-spider-man-alternate-2"
+  },
+  {
+    "Rank": 445,
+    "Title": "The Walking Dead: A New Frontier (alternate)",
+    "Metascore": 72,
+    "Release Date": "Dec 20, 2016",
+    "slug": "the-walking-dead-a-new-frontier-alternate"
+  },
+  {
+    "Rank": 446,
+    "Title": "Rage (classic listing)",
+    "Metascore": 72,
+    "Release Date": "Oct 4, 2011",
+    "slug": "rage-classic-listing"
+  },
+  {
+    "Rank": 447,
+    "Title": "Tom Clancy's Splinter Cell Blacklist (PS4 placeholder)",
+    "Metascore": 72,
+    "Release Date": "2013-08-20",
+    "slug": "tom-clancy-s-splinter-cell-blacklist-ps4-placeholder"
+  },
+  {
+    "Rank": 448,
+    "Title": "Sonic Boom: Rise of Lyric (placeholder)",
+    "Metascore": 72,
+    "Release Date": "Nov 11, 2014",
+    "slug": "sonic-boom-rise-of-lyric-placeholder"
+  },
+  {
+    "Rank": 449,
+    "Title": "Aliens vs Predator (2010)",
+    "Metascore": 72,
+    "Release Date": "Feb 12, 2010",
+    "slug": "aliens-vs-predator-2010"
+  },
+  {
+    "Rank": 450,
+    "Title": "Might & Magic Heroes VII",
+    "Metascore": 72,
+    "Release Date": "Sep 29, 2015",
+    "slug": "might-and-magic-heroes-vii"
+  },
+  {
+    "Rank": 451,
+    "Title": "MX vs ATV Alive",
+    "Metascore": 72,
+    "Release Date": "Apr 1, 2012",
+    "slug": "mx-vs-atv-alive"
+  },
+  {
+    "Rank": 452,
+    "Title": "Kane & Lynch 2: Dog Days",
+    "Metascore": 72,
+    "Release Date": "Aug 21, 2010",
+    "slug": "kane-and-lynch-2-dog-days"
+  },
+  {
+    "Rank": 453,
+    "Title": "Darksiders III (alternate)",
+    "Metascore": 72,
+    "Release Date": "Nov 27, 2018",
+    "slug": "darksiders-iii-alternate"
+  },
+  {
+    "Rank": 454,
+    "Title": "Deus Ex: Mankind Divided (alt)",
+    "Metascore": 72,
+    "Release Date": "Aug 23, 2016",
+    "slug": "deus-ex-mankind-divided-alt"
+  },
+  {
+    "Rank": 455,
+    "Title": "Lego Worlds",
+    "Metascore": 72,
+    "Release Date": "Mar 7, 2017",
+    "slug": "lego-worlds"
+  },
+  {
+    "Rank": 456,
+    "Title": "The Book of Unwritten Tales 2",
+    "Metascore": 72,
+    "Release Date": "Jun 3, 2015",
+    "slug": "the-book-of-unwritten-tales-2"
+  },
+  {
+    "Rank": 457,
+    "Title": "Spintires: MudRunner",
+    "Metascore": 72,
+    "Release Date": "Oct 31, 2017",
+    "slug": "spintires-mudrunner"
+  },
+  {
+    "Rank": 458,
+    "Title": "Saints Row: The Third Remastered",
+    "Metascore": 72,
+    "Release Date": "May 22, 2020",
+    "slug": "saints-row-the-third-remastered"
+  },
+  {
+    "Rank": 459,
+    "Title": "The Crew 2 (alt 2)",
+    "Metascore": 72,
+    "Release Date": "Jun 29, 2018",
+    "slug": "the-crew-2-alt-2"
+  },
+  {
+    "Rank": 460,
+    "Title": "The Sims 4 (alternate listing)",
+    "Metascore": 72,
+    "Release Date": "Sep 2, 2014",
+    "slug": "the-sims-4-alternate-listing"
+  },
+  {
+    "Rank": 461,
+    "Title": "F1 2015",
+    "Metascore": 72,
+    "Release Date": "Jul 10, 2015",
+    "slug": "f1-2015"
+  },
+  {
+    "Rank": 462,
+    "Title": "GRID Autosport",
+    "Metascore": 71,
+    "Release Date": "Jun 12, 2015",
+    "slug": "grid-autosport"
+  },
+  {
+    "Rank": 463,
+    "Title": "MXGP3",
+    "Metascore": 71,
+    "Release Date": "Jun 29, 2017",
+    "slug": "mxgp3"
+  },
+  {
+    "Rank": 464,
+    "Title": "WWE 2K18",
+    "Metascore": 71,
+    "Release Date": "Oct 17, 2017",
+    "slug": "wwe-2k18"
+  },
+  {
+    "Rank": 465,
+    "Title": "Sonic Forces (alternate)",
+    "Metascore": 71,
+    "Release Date": "Nov 7, 2017",
+    "slug": "sonic-forces-alternate"
+  },
+  {
+    "Rank": 466,
+    "Title": "Mirror's Edge (remaster alt)",
+    "Metascore": 71,
+    "Release Date": "Nov 11, 2008",
+    "slug": "mirror-s-edge-remaster-alt"
+  },
+  {
+    "Rank": 467,
+    "Title": "Valiant Hearts (alt 2)",
+    "Metascore": 71,
+    "Release Date": "Jun 1, 2014",
+    "slug": "valiant-hearts-alt-2"
+  },
+  {
+    "Rank": 468,
+    "Title": "Dishonored: Death of the Outsider",
+    "Metascore": 71,
+    "Release Date": "Sep 15, 2017",
+    "slug": "dishonored-death-of-the-outsider"
+  },
+  {
+    "Rank": 469,
+    "Title": "The Bunker",
+    "Metascore": 71,
+    "Release Date": "Aug 3, 2016",
+    "slug": "the-bunker"
+  },
+  {
+    "Rank": 470,
+    "Title": "The Dwarves",
+    "Metascore": 71,
+    "Release Date": "Dec 1, 2016",
+    "slug": "the-dwarves"
+  },
+  {
+    "Rank": 471,
+    "Title": "LEGO Star Wars: The Force Awakens",
+    "Metascore": 71,
+    "Release Date": "Jun 28, 2016",
+    "slug": "lego-star-wars-the-force-awakens"
+  },
+  {
+    "Rank": 472,
+    "Title": "Assassin's Creed Chronicles: China",
+    "Metascore": 71,
+    "Release Date": "Apr 21, 2015",
+    "slug": "assassin-s-creed-chronicles-china"
+  },
+  {
+    "Rank": 473,
+    "Title": "The Surge (alternate)",
+    "Metascore": 71,
+    "Release Date": "May 16, 2017",
+    "slug": "the-surge-alternate"
+  },
+  {
+    "Rank": 474,
+    "Title": "Rugby 18",
+    "Metascore": 71,
+    "Release Date": "Aug 9, 2017",
+    "slug": "rugby-18"
+  },
+  {
+    "Rank": 475,
+    "Title": "The Walking Dead: Michonne (alternate)",
+    "Metascore": 71,
+    "Release Date": "Feb 23, 2016",
+    "slug": "the-walking-dead-michonne-alternate"
+  },
+  {
+    "Rank": 476,
+    "Title": "F1 2014 (legacy)",
+    "Metascore": 71,
+    "Release Date": "Oct 17, 2014",
+    "slug": "f1-2014-legacy"
+  },
+  {
+    "Rank": 477,
+    "Title": "Hotline Miami 2: Wrong Number",
+    "Metascore": 71,
+    "Release Date": "Mar 10, 2015",
+    "slug": "hotline-miami-2-wrong-number"
+  },
+  {
+    "Rank": 478,
+    "Title": "Earth Defense Force 4.1",
+    "Metascore": 71,
+    "Release Date": "Aug 29, 2015",
+    "slug": "earth-defense-force-4-1"
+  },
+  {
+    "Rank": 479,
+    "Title": "Dawn of War III",
+    "Metascore": 70,
+    "Release Date": "Apr 27, 2017",
+    "slug": "dawn-of-war-iii"
+  },
+  {
+    "Rank": 480,
+    "Title": "Mighty No. 9 (alternate)",
+    "Metascore": 70,
+    "Release Date": "Jun 21, 2016",
+    "slug": "mighty-no-9-alternate"
+  },
+  {
+    "Rank": 481,
+    "Title": "Homefront: The Revolution (alt)",
+    "Metascore": 70,
+    "Release Date": "May 17, 2016",
+    "slug": "homefront-the-revolution-alt"
+  },
+  {
+    "Rank": 482,
+    "Title": "The Crew (alt 3)",
+    "Metascore": 70,
+    "Release Date": "Dec 2, 2014",
+    "slug": "the-crew-alt-3"
+  },
+  {
+    "Rank": 483,
+    "Title": "Tom Clancy's The Division (alt 2)",
+    "Metascore": 70,
+    "Release Date": "Mar 8, 2016",
+    "slug": "tom-clancy-s-the-division-alt-2"
+  },
+  {
+    "Rank": 484,
+    "Title": "Prototype Biohazard Bundle (placeholder)",
+    "Metascore": 70,
+    "Release Date": "",
+    "slug": "prototype-biohazard-bundle-placeholder"
+  },
+  {
+    "Rank": 485,
+    "Title": "Assassin's Creed Unity",
+    "Metascore": 70,
+    "Release Date": "Nov 11, 2014",
+    "slug": "assassin-s-creed-unity"
+  },
+  {
+    "Rank": 486,
+    "Title": "Mass Effect 3: Special Edition",
+    "Metascore": 70,
+    "Release Date": "Mar 6, 2012",
+    "slug": "mass-effect-3-special-edition"
+  },
+  {
+    "Rank": 487,
+    "Title": "F1 2013 (legacy)",
+    "Metascore": 70,
+    "Release Date": "Oct 4, 2013",
+    "slug": "f1-2013-legacy"
+  },
+  {
+    "Rank": 488,
+    "Title": "FlatOut 4: Total Insanity",
+    "Metascore": 70,
+    "Release Date": "Mar 17, 2017",
+    "slug": "flatout-4-total-insanity"
+  },
+  {
+    "Rank": 489,
+    "Title": "Battlefield 1 (alternate)",
+    "Metascore": 70,
+    "Release Date": "Oct 18, 2016",
+    "slug": "battlefield-1-alternate"
+  },
+  {
+    "Rank": 490,
+    "Title": "Rugby 20",
+    "Metascore": 70,
+    "Release Date": "Feb 22, 2020",
+    "slug": "rugby-20"
+  },
+  {
+    "Rank": 491,
+    "Title": "Skylanders Imaginators",
+    "Metascore": 70,
+    "Release Date": "Oct 16, 2016",
+    "slug": "skylanders-imaginators"
+  },
+  {
+    "Rank": 492,
+    "Title": "Rise of the Tomb Raider (alternate)",
+    "Metascore": 70,
+    "Release Date": "Nov 10, 2015",
+    "slug": "rise-of-the-tomb-raider-alternate"
+  },
+  {
+    "Rank": 493,
+    "Title": "The Order: 1886 (alt final)",
+    "Metascore": 70,
+    "Release Date": "Feb 20, 2015",
+    "slug": "the-order-1886-alt-final"
+  },
+  {
+    "Rank": 494,
+    "Title": "The Amazing Spider-Man 2 (alt final)",
+    "Metascore": 70,
+    "Release Date": "Jun 10, 2014",
+    "slug": "the-amazing-spider-man-2-alt-final"
+  },
+  {
+    "Rank": 495,
+    "Title": "The Crew (final alt)",
+    "Metascore": 70,
+    "Release Date": "Dec 2, 2014",
+    "slug": "the-crew-final-alt"
+  },
+  {
+    "Rank": 496,
+    "Title": "Homefront (final alt)",
+    "Metascore": 70,
+    "Release Date": "May 28, 2011",
+    "slug": "homefront-final-alt"
+  },
+  {
+    "Rank": 497,
+    "Title": "The Dwarves (alt)",
+    "Metascore": 70,
+    "Release Date": "Dec 1, 2016",
+    "slug": "the-dwarves-alt"
+  },
+  {
+    "Rank": 498,
+    "Title": "Duke Nukem Forever (alt final)",
+    "Metascore": 70,
+    "Release Date": "Jun 10, 2011",
+    "slug": "duke-nukem-forever-alt-final"
+  },
+  {
+    "Rank": 499,
+    "Title": "Rambo: The Video Game (alt)",
+    "Metascore": 70,
+    "Release Date": "",
+    "slug": "rambo-the-video-game-alt"
+  },
+  {
+    "Rank": 500,
+    "Title": "Prototype (remaster placeholder)",
+    "Metascore": 70,
+    "Release Date": "",
+    "slug": "prototype-remaster-placeholder"
+  }
+];
+
+    // Removed cover art; we embed mini trailer players instead
+
+    // Optional: known gameplay trailer IDs to embed directly (expand over time)
+    const TRAILERS = {
+      "red-dead-redemption-2": "eaW0tYpxyp0",
+      "grand-theft-auto-v": "QkkoHAzjnUs",
+      "uncharted-4-a-thief-s-end": "hh5HV4iic1Y",
+      "god-of-war-2018": "K0u_kAWLJOA"
+    };
+
+    // Cache trailer IDs after resolving so subsequent loads are instant
+    const TRAILER_CACHE_KEY = 'ps4_trailer_cache_v1';
+    let TRAILER_CACHE = {};
+    try { TRAILER_CACHE = JSON.parse(localStorage.getItem(TRAILER_CACHE_KEY) || '{}'); } catch(e) { TRAILER_CACHE = {}; }
+    function saveTrailerCache(){
+      try { localStorage.setItem(TRAILER_CACHE_KEY, JSON.stringify(TRAILER_CACHE)); } catch(e) {}
+    }
+    async function getOrResolveTrailerId(slug, titleUpper){
+      if(slug && TRAILERS[slug]) return TRAILERS[slug];
+      if(slug && TRAILER_CACHE[slug]) return TRAILER_CACHE[slug];
+      const id = await resolveTrailerIdBySearch(titleUpper);
+      if(slug && id){
+        TRAILER_CACHE[slug] = id;
+        saveTrailerCache();
+      }
+      return id;
+    }
+
+    const PER_PAGE = 9;
+    let currentPage = 1;
+    let currentData = [];
+    let startedGlobalPrefetch = false;
+
+    function getYouTubeTrailerUrl(game){
+      const title = (game.Title || '').trim().toUpperCase();
+      if(!title) return '';
+      const query = 'site:youtube.com ' + title + ' gameplay trailer';
+      // Use DuckDuckGo !ducky to redirect to the first result (typically the top YouTube trailer)
+      return 'https://duckduckgo.com/?q=' + encodeURIComponent('!ducky ' + query);
+    }
+
+    function embedIframe(container, videoId){
+      if(!container || !videoId) return;
+      if(container.dataset.embedded === '1') return;
+      container.innerHTML = '';
+      const iframe = document.createElement('iframe');
+      iframe.className = 'yt-frame';
+      iframe.width = 360;
+      iframe.height = 210;
+      iframe.title = 'YouTube video player';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+      iframe.allowFullscreen = true;
+      iframe.loading = 'lazy';
+      container.appendChild(iframe);
+
+      const origin = (window && window.location && window.location.origin) ? encodeURIComponent(window.location.origin) : '';
+      const ytParams = (origin ? ('&origin=' + origin) : '') + '&autoplay=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1';
+      const sources = [
+        id => 'https://www.youtube-nocookie.com/embed/' + id + '?' + ytParams.slice(1),
+        id => 'https://www.youtube.com/embed/' + id + '?' + ytParams.slice(1)
+      ];
+
+      let tried = 0;
+      const tryNext = ()=>{
+        if(tried >= sources.length){
+          // If both YouTube sources error (e.g., 153), try alternate video IDs from search
+          const titleUpper = (container.closest('.card')?.querySelector('.title')?.textContent || '').toUpperCase();
+          resolveCandidateIdsBySearch(titleUpper, 3).then(ids=>{
+            (ids||[]).forEach(id=>{
+              if(container.dataset.embedded === '1') return;
+              const alt = document.createElement('iframe');
+              alt.className = 'yt-frame';
+              alt.width = 360;
+              alt.height = 210;
+              alt.title = 'YouTube video player';
+              alt.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+              alt.referrerPolicy = 'strict-origin-when-cross-origin';
+              alt.allowFullscreen = true;
+              alt.loading = 'lazy';
+              alt.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1';
+              alt.addEventListener('load', ()=>{ container.dataset.embedded = '1'; });
+              container.innerHTML = '';
+              container.appendChild(alt);
+            });
+          }).catch(()=>{});
+          return;
+        }
+        const src = sources[tried++](videoId);
+        let resolved = false;
+        const onLoad = ()=>{ resolved = true; container.dataset.embedded = '1'; cleanup(); };
+        const onError = ()=>{ if(!resolved) { cleanup(); tryNext(); } };
+        const timeoutId = setTimeout(()=>{ if(!resolved){ cleanup(); tryNext(); } }, 3500);
+        function cleanup(){
+          iframe.removeEventListener('load', onLoad);
+          iframe.removeEventListener('error', onError);
+          clearTimeout(timeoutId);
+        }
+        iframe.addEventListener('load', onLoad);
+        iframe.addEventListener('error', onError);
+        iframe.src = src;
+      };
+      tryNext();
+    }
+
+    // Resolve a trailer videoId by searching multiple privacy-friendly instances
+    function fetchJsonWithTimeout(url, ms){
+      return Promise.race([
+        fetch(url).then(r=>r.json()),
+        new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')), ms))
+      ]);
+    }
+
+    function fetchTextWithTimeout(url, ms){
+      return Promise.race([
+        fetch(url).then(r=>r.text()),
+        new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')), ms))
+      ]);
+    }
+
+    async function resolveTrailerIdBySearch(titleUpper){
+      const titleNormal = (titleUpper||'').toString();
+      const queries = [
+        (titleNormal + ' GAMEPLAY TRAILER').trim(),
+        (titleNormal + ' OFFICIAL GAMEPLAY TRAILER').trim(),
+        (titleNormal + ' LAUNCH TRAILER').trim(),
+        (titleNormal + ' TRAILER').trim(),
+        (titleNormal + ' PS4 TRAILER').trim()
+      ];
+      // First: parse YouTube results HTML (no API key) via CORS-friendly proxy
+      for(const q of queries){
+        try{
+          const url = 'https://r.jina.ai/http://www.youtube.com/results?search_query=' + encodeURIComponent(q);
+          const html = await fetchTextWithTimeout(url, 9000);
+          if(html && typeof html === 'string'){
+            const regex = /watch\?v=([a-zA-Z0-9_-]{11})/g;
+            const seen = new Set();
+            let match;
+            while((match = regex.exec(html))){
+              const id = match[1];
+              if(!seen.has(id)){
+                return id;
+              }
+            }
+          }
+        }catch(e){/* try next query */}
+      }
+      // Fallback: try Piped instances
+      const pipedEndpoints = [
+        'https://piped.video/api/v1/search?q=',
+        'https://piped.privacydev.net/api/v1/search?q=',
+        'https://piped.darkness.services/api/v1/search?q=',
+        'https://piped.adminforge.de/api/v1/search?q='
+      ];
+      for(const q of queries){
+        const enc = encodeURIComponent(q);
+        for(const base of pipedEndpoints){
+          try{
+            const results = await fetchJsonWithTimeout(base + enc + '&region=US', 8000);
+            const vid = (results||[]).find(v=>v && v.type==='video' && v.videoId);
+            if(vid && vid.videoId) return vid.videoId;
+          }catch(e){/* try next */}
+        }
+      }
+      return '';
+    }
+
+    async function resolveCandidateIdsBySearch(titleUpper, maxCount){
+      const titleNormal = (titleUpper||'').toString();
+      const query = (titleNormal + ' GAMEPLAY TRAILER').trim();
+      const url = 'https://r.jina.ai/http://www.youtube.com/results?search_query=' + encodeURIComponent(query);
+      try{
+        const html = await fetchTextWithTimeout(url, 9000);
+        const regex = /watch\?v=([a-zA-Z0-9_-]{11})/g;
+        const seen = new Set();
+        const out = [];
+        let match;
+        while((match = regex.exec(html))){
+          const id = match[1];
+          if(!seen.has(id)){
+            seen.add(id);
+            out.push(id);
+            if(maxCount && out.length >= maxCount) break;
+          }
+        }
+        return out;
+      }catch(e){
+        return [];
+      }
+    }
+
+    function renderGrid(list){
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      list.forEach(game=>{
+        const el = document.createElement('div');
+        el.className = 'card';
+
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        const left = document.createElement('div');
+        left.innerHTML = '<div class="rank">#' + (game.Rank || '-') + '</div>';
+        const right = document.createElement('div');
+        right.innerHTML = '<div style="text-align:right"><div class="score">' + (game.Metascore || '-') + '</div><div class="small">Metascore</div></div>';
+        meta.appendChild(left);
+        meta.appendChild(right);
+
+        const title = document.createElement('a');
+        title.className = 'title';
+        title.textContent = game.Title || 'Unknown title';
+        const ytUrl = getYouTubeTrailerUrl(game);
+        if(ytUrl){
+          title.href = ytUrl;
+          title.target = '_blank';
+          title.rel = 'noopener noreferrer';
+        }
+
+        const small = document.createElement('div');
+        small.className = 'small';
+        small.textContent = 'Release: ' + (game['Release Date'] || 'Unknown');
+
+        el.appendChild(meta);
+        el.appendChild(title);
+        el.appendChild(small);
+
+        const box = document.createElement('div');
+        box.className = 'cover-box';
+        if(game.slug){ box.setAttribute('data-slug', game.slug); }
+        (async ()=>{
+          const titleUpper = (game.Title||'').toUpperCase();
+          const id = await getOrResolveTrailerId(game.slug, titleUpper);
+          if(id){
+            embedIframe(box, id);
+          }
+        })();
+        el.appendChild(box);
+
+        grid.appendChild(el);
+      });
+    }
+
+    function renderPager(total, page){
+      const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+      const pageInfo = document.getElementById('pageInfo');
+      const prevBtn = document.getElementById('prev');
+      const nextBtn = document.getElementById('next');
+      pageInfo.textContent = 'Page ' + page + ' of ' + totalPages;
+      prevBtn.disabled = page <= 1;
+      nextBtn.disabled = page >= totalPages;
+    }
+
+    function renderPage(list, page){
+      const start = (page - 1) * PER_PAGE;
+      const pageItems = list.slice(start, start + PER_PAGE);
+      renderGrid(pageItems);
+      renderPager(list.length, page);
+      // Prefetch trailer IDs for items on the next page to speed up embeds
+      const nextStart = page * PER_PAGE;
+      const nextItems = list.slice(nextStart, nextStart + PER_PAGE);
+      nextItems.forEach(g=>{
+        getOrResolveTrailerId(g.slug, (g.Title||'').toUpperCase());
+      });
+    }
+
+    function exportTrailerIds(){
+      const combined = Object.assign({}, TRAILERS, TRAILER_CACHE);
+      const sortedKeys = Object.keys(combined).sort();
+      const sorted = {};
+      sortedKeys.forEach(k=>{ if(combined[k]) sorted[k]=combined[k]; });
+      const blob = new Blob([JSON.stringify(sorted, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'ps4_trailer_ids.json';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    }
+
+    async function resolveAllTrailers(list){
+      const items = list.slice();
+      const concurrency = 4;
+      let idx = 0;
+      const worker = async ()=>{
+        while(idx < items.length){
+          const i = idx++;
+          const g = items[i];
+          const slug = g.slug;
+          if(!slug) continue;
+          if(TRAILERS[slug] || TRAILER_CACHE[slug]) continue;
+          try{
+            const id = await getOrResolveTrailerId(slug, (g.Title||'').toUpperCase());
+            if(id){
+              const box = document.querySelector('.cover-box[data-slug="' + slug + '"]');
+              if(box){ embedIframe(box, id); }
+            }
+          }catch(e){/* ignore and continue */}
+        }
+      };
+      await Promise.all(new Array(concurrency).fill(0).map(()=>worker()));
+    }
+
+    async function prefetchAllTrailerIds(list){
+      const toFetch = list.filter(g=>{
+        const s = g.slug;
+        return s && !TRAILERS[s] && !TRAILER_CACHE[s];
+      });
+      const concurrency = 3;
+      let index = 0;
+      const workers = new Array(concurrency).fill(0).map(async ()=>{
+        while(index < toFetch.length){
+          const i = index++;
+          const g = toFetch[i];
+          try{
+            const id = await getOrResolveTrailerId(g.slug, (g.Title||'').toUpperCase());
+            if(id){
+              const box = document.querySelector('.cover-box[data-slug="' + g.slug + '"]');
+              if(box){ embedIframe(box, id); }
+            }
+          }catch(e){/* ignore */}
+        }
+      });
+      await Promise.all(workers);
+    }
+
+    function applyFilters(data){
+      const q = (document.getElementById('q').value || '').trim().toLowerCase();
+      const minVal = Number(document.getElementById('min').value);
+      const maxVal = Number(document.getElementById('max').value);
+
+      const filtered = data.filter(g=>{
+        if(g.Title && q){
+          if(!g.Title.toLowerCase().includes(q)) return false;
+        }
+        if(!isNaN(minVal) && minVal){
+          if(Number(g.Metascore) < minVal) return false;
+        }
+        if(!isNaN(maxVal) && maxVal){
+          if(Number(g.Metascore) > maxVal) return false;
+        }
+        return true;
+      });
+      const sorted = filtered.sort((a,b)=>Number(a.Rank) - Number(b.Rank));
+      currentData = sorted;
+      currentPage = 1;
+      document.getElementById('count').textContent = sorted.length + ' result' + (sorted.length === 1 ? '' : 's');
+      renderPage(currentData, currentPage);
+      if(!startedGlobalPrefetch){
+        startedGlobalPrefetch = true;
+        // Start background prefetch for all items to maximize embed coverage
+        setTimeout(()=>{ prefetchAllTrailerIds(sorted); }, 0);
+      }
+    }
+
+    (function(){
+      const data = GAMES.slice();
+      data.sort((a,b)=>Number(a.Rank) - Number(b.Rank));
+      document.getElementById('apply').addEventListener('click',()=>applyFilters(data));
+      document.getElementById('reset').addEventListener('click',()=>{
+        document.getElementById('q').value='';
+        document.getElementById('min').value='';
+        document.getElementById('max').value='';
+        applyFilters(data);
+      });
+      document.getElementById('export').addEventListener('click', exportTrailerIds);
+      document.getElementById('resolveAll').addEventListener('click', ()=>resolveAllTrailers(data));
+      document.getElementById('q').addEventListener('keyup',()=>applyFilters(data));
+      document.getElementById('min').addEventListener('input',()=>applyFilters(data));
+      document.getElementById('max').addEventListener('input',()=>applyFilters(data));
+
+      document.getElementById('prev').addEventListener('click',()=>{
+        if(currentPage > 1){
+          currentPage -= 1;
+          renderPage(currentData, currentPage);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+      document.getElementById('next').addEventListener('click',()=>{
+        const totalPages = Math.max(1, Math.ceil(currentData.length / PER_PAGE));
+        if(currentPage < totalPages){
+          currentPage += 1;
+          renderPage(currentData, currentPage);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+
+      applyFilters(data);
+    })();
+  </script>
+</body>
+</html>
