@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>PlayStation 4 — Top 500 List</title>
+  <link rel="preconnect" href="https://www.youtube.com">
+  <link rel="preconnect" href="https://www.youtube-nocookie.com">
+  <link rel="preconnect" href="https://i.ytimg.com">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@700;800&display=swap');
     :root{--bg:#0f1720;--card:#0b1220;--muted:#9aa4b2;--accent:#7531B4}
@@ -3628,8 +3631,8 @@
       // Simplified params to avoid 153 errors on local files. No origin or enablejsapi.
       const ytParams = 'autoplay=0&modestbranding=1&rel=0&playsinline=1';
       const sources = [
-        id => 'https://www.youtube-nocookie.com/embed/' + id + '?' + ytParams,
-        id => 'https://www.youtube.com/embed/' + id + '?' + ytParams
+        id => 'https://www.youtube.com/embed/' + id + '?' + ytParams,
+        id => 'https://www.youtube-nocookie.com/embed/' + id + '?' + ytParams
       ];
 
       let tried = 0;
@@ -3661,7 +3664,7 @@
         let resolved = false;
         const onLoad = ()=>{ resolved = true; container.dataset.embedded = '1'; cleanup(); };
         const onError = ()=>{ if(!resolved) { cleanup(); tryNext(); } };
-        const timeoutId = setTimeout(()=>{ if(!resolved){ cleanup(); tryNext(); } }, 3500);
+        const timeoutId = setTimeout(()=>{ if(!resolved){ cleanup(); tryNext(); } }, 2000);
         function cleanup(){
           iframe.removeEventListener('load', onLoad);
           iframe.removeEventListener('error', onError);
@@ -3689,51 +3692,61 @@
       ]);
     }
 
-    async function resolveTrailerIdBySearch(titleUpper){
-      const titleNormal = (titleUpper||'').toString();
-      const queries = [
-        (titleNormal + ' GAMEPLAY TRAILER').trim(),
-        (titleNormal + ' OFFICIAL GAMEPLAY TRAILER').trim(),
-        (titleNormal + ' LAUNCH TRAILER').trim(),
-        (titleNormal + ' TRAILER').trim(),
-        (titleNormal + ' PS4 TRAILER').trim()
-      ];
-      // First: parse YouTube results HTML (no API key) via CORS-friendly proxy
-      for(const q of queries){
-        try{
-          const url = 'https://r.jina.ai/http://www.youtube.com/results?search_query=' + encodeURIComponent(q);
-          const html = await fetchTextWithTimeout(url, 9000);
-          if(html && typeof html === 'string'){
-            const regex = /watch\?v=([a-zA-Z0-9_-]{11})/g;
-            const seen = new Set();
-            let match;
-            while((match = regex.exec(html))){
-              const id = match[1];
-              if(!seen.has(id)){
-                return id;
-              }
-            }
+    // Speed up by racing multiple sources and resolving the first successful ID
+    function firstNonEmpty(promises){
+      return new Promise(resolve=>{
+        let remaining = promises.length;
+        if(remaining === 0) return resolve('');
+        promises.forEach(p=>{
+          p.then(val=>{ if(val){ resolve(val); } else if(--remaining===0){ resolve(''); } })
+           .catch(()=>{ if(--remaining===0){ resolve(''); } });
+        });
+      });
+    }
+    function fetchYouTubeIdViaHtml(query){
+      const url = 'https://r.jina.ai/http://www.youtube.com/results?search_query=' + encodeURIComponent(query);
+      return fetchTextWithTimeout(url, 6000).then(html=>{
+        if(!html || typeof html !== 'string') return '';
+        const regex = /watch\?v=([a-zA-Z0-9_-]{11})/g;
+        const seen = new Set();
+        let match;
+        while((match = regex.exec(html))){
+          const id = match[1];
+          if(!seen.has(id)){
+            return id;
           }
-        }catch(e){/* try next query */}
-      }
-      // Fallback: try Piped instances
-      const pipedEndpoints = [
+        }
+        return '';
+      }).catch(()=> '');
+    }
+    function fetchYouTubeIdViaPiped(query){
+      const enc = encodeURIComponent(query);
+      const bases = [
         'https://piped.video/api/v1/search?q=',
         'https://piped.privacydev.net/api/v1/search?q=',
         'https://piped.darkness.services/api/v1/search?q=',
         'https://piped.adminforge.de/api/v1/search?q='
       ];
-      for(const q of queries){
-        const enc = encodeURIComponent(q);
-        for(const base of pipedEndpoints){
-          try{
-            const results = await fetchJsonWithTimeout(base + enc + '&region=US', 8000);
+      const calls = bases.map(base=>
+        fetchJsonWithTimeout(base + enc + '&region=US', 6000)
+          .then(results=>{
             const vid = (results||[]).find(v=>v && v.type==='video' && v.videoId);
-            if(vid && vid.videoId) return vid.videoId;
-          }catch(e){/* try next */}
-        }
-      }
-      return '';
+            return vid && vid.videoId ? vid.videoId : '';
+          })
+          .catch(()=> '')
+      );
+      return firstNonEmpty(calls);
+    }
+    async function resolveTrailerIdBySearch(titleUpper){
+      const titleNormal = (titleUpper||'').toString();
+      const queries = [
+        (titleNormal + ' GAMEPLAY TRAILER').trim(),
+        (titleNormal + ' OFFICIAL TRAILER').trim()
+      ];
+      const htmlCalls = queries.map(q=>fetchYouTubeIdViaHtml(q));
+      const pipedCall = fetchYouTubeIdViaPiped(queries[0]);
+      const id = await firstNonEmpty([...htmlCalls, pipedCall]);
+      return id || '';
     }
 
     async function resolveCandidateIdsBySearch(titleUpper, maxCount){
