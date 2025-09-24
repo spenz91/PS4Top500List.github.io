@@ -37,19 +37,7 @@
     #q:focus,#min:focus,#max:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(117,49,180,0.35),0 8px 24px rgba(7,16,34,0.6)}
   </style>
   <script>
-    (function loadYT(){
-      if(window.__ytApiLoading) return; window.__ytApiLoading = true;
-      const s = document.createElement('script');
-      s.src = 'https://www.youtube.com/iframe_api';
-      document.head.appendChild(s);
-    })();
-    window.__ytReady = false;
-    window.__ytQueue = [];
-    window.onYouTubeIframeAPIReady = function(){
-      window.__ytReady = true;
-      (window.__ytQueue||[]).forEach(fn=>{ try{ fn(); }catch(e){} });
-      window.__ytQueue = [];
-    };
+    // Removed YouTube IFrame API usage to avoid local file origin issues
   </script>
 </head>
 <body>
@@ -3637,11 +3625,11 @@
       iframe.loading = 'lazy';
       container.appendChild(iframe);
 
-      const origin = (window && window.location && window.location.origin) ? encodeURIComponent(window.location.origin) : '';
-      const ytParams = (origin ? ('&origin=' + origin) : '') + '&autoplay=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1';
+      // Simplified params to avoid 153 errors on local files. No origin or enablejsapi.
+      const ytParams = 'autoplay=0&modestbranding=1&rel=0&playsinline=1';
       const sources = [
-        id => 'https://www.youtube-nocookie.com/embed/' + id + '?' + ytParams.slice(1),
-        id => 'https://www.youtube.com/embed/' + id + '?' + ytParams.slice(1)
+        id => 'https://www.youtube-nocookie.com/embed/' + id + '?' + ytParams,
+        id => 'https://www.youtube.com/embed/' + id + '?' + ytParams
       ];
 
       let tried = 0;
@@ -3661,7 +3649,7 @@
               alt.referrerPolicy = 'strict-origin-when-cross-origin';
               alt.allowFullscreen = true;
               alt.loading = 'lazy';
-              alt.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1';
+              alt.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=0&modestbranding=1&rel=0&playsinline=1';
               alt.addEventListener('load', ()=>{ container.dataset.embedded = '1'; });
               container.innerHTML = '';
               container.appendChild(alt);
