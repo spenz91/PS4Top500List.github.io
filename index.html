@@ -30,6 +30,11 @@
     .yt-frame{width:100%;height:100%;border:0;display:block;border-radius:8px;background:#000}
     .score{font-size:22px;font-weight:800;color:#fff;background:rgba(117,49,180,0.18);padding:4px 8px;border-radius:6px;display:inline-block;border:1px solid #2a3a4a}
     .rank{font-size:22px;font-weight:800;color:#fff;background:rgba(117,49,180,0.18);padding:4px 8px;border-radius:6px;display:inline-block;border:1px solid #2a3a4a;transform:translateY(-8px)}
+    /* Enhanced input styling */
+    #q,#min,#max{font-size:16px;padding:12px 14px;border-width:2px;border-color:#2a3a4a;background:#0b1220;box-shadow:0 0 0 3px rgba(117,49,180,0.15)}
+    #q{width:320px}
+    #min,#max{width:110px}
+    #q:focus,#min:focus,#max:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(117,49,180,0.35),0 8px 24px rgba(7,16,34,0.6)}
   </style>
   <script>
     (function loadYT(){
@@ -55,10 +60,6 @@
         <input id="q" type="text" placeholder="Search title" aria-label="Search title">
         <input id="min" type="number" placeholder="Min" min="0" max="100" aria-label="Min score">
         <input id="max" type="number" placeholder="Max" min="0" max="100" aria-label="Max score">
-        <button id="apply">Filter</button>
-        <button id="reset">Reset</button>
-        <button id="resolveAll">Resolve all</button>
-        <button id="export">Export trailers</button>
       </div>
     </header>
 
@@ -3936,15 +3937,6 @@
     (function(){
       const data = GAMES.slice();
       data.sort((a,b)=>Number(a.Rank) - Number(b.Rank));
-      document.getElementById('apply').addEventListener('click',()=>applyFilters(data));
-      document.getElementById('reset').addEventListener('click',()=>{
-        document.getElementById('q').value='';
-        document.getElementById('min').value='';
-        document.getElementById('max').value='';
-        applyFilters(data);
-      });
-      document.getElementById('export').addEventListener('click', exportTrailerIds);
-      document.getElementById('resolveAll').addEventListener('click', ()=>resolveAllTrailers(data));
       document.getElementById('q').addEventListener('keyup',()=>applyFilters(data));
       document.getElementById('min').addEventListener('input',()=>applyFilters(data));
       document.getElementById('max').addEventListener('input',()=>applyFilters(data));
