@@ -35,6 +35,8 @@
     #q{width:320px}
     #min,#max{width:110px}
     #q:focus,#min:focus,#max:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(117,49,180,0.35),0 8px 24px rgba(7,16,34,0.6)}
+    .load-btn{background:#071022;border:1px solid #1f2937;padding:10px 12px;border-radius:8px;color:#dbeafe;cursor:pointer;width:100%;font-weight:600}
+    .load-btn:hover{border-color:#2a3a4a}
   </style>
   <script>
     // Removed YouTube IFrame API usage to avoid local file origin issues
@@ -3620,7 +3622,6 @@
       iframe.height = 210;
       iframe.title = 'YouTube video player';
       iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
       iframe.allowFullscreen = true;
       iframe.loading = 'lazy';
       container.appendChild(iframe);
@@ -3633,11 +3634,23 @@
       ];
 
       let tried = 0;
+      const showFallback = ()=>{
+        const fallbackUrl = container.closest('.card')?.querySelector('.title')?.href || 'https://www.youtube.com';
+        const a = document.createElement('a');
+        a.href = fallbackUrl;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = 'Open on YouTube';
+        a.className = 'badge';
+        container.innerHTML = '';
+        container.appendChild(a);
+      };
       const tryNext = ()=>{
         if(tried >= sources.length){
           // If both YouTube sources error (e.g., 153), try alternate video IDs from search
           const titleUpper = (container.closest('.card')?.querySelector('.title')?.textContent || '').toUpperCase();
           resolveCandidateIdsBySearch(titleUpper, 3).then(ids=>{
+            if(!ids || ids.length === 0){ showFallback(); return; }
             (ids||[]).forEach(id=>{
               if(container.dataset.embedded === '1') return;
               const alt = document.createElement('iframe');
@@ -3646,7 +3659,6 @@
               alt.height = 210;
               alt.title = 'YouTube video player';
               alt.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-              alt.referrerPolicy = 'strict-origin-when-cross-origin';
               alt.allowFullscreen = true;
               alt.loading = 'lazy';
               alt.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=0&modestbranding=1&rel=0&playsinline=1';
@@ -3654,7 +3666,7 @@
               container.innerHTML = '';
               container.appendChild(alt);
             });
-          }).catch(()=>{});
+          }).catch(()=>{ showFallback(); });
           return;
         }
         const src = sources[tried++](videoId);
@@ -3797,13 +3809,31 @@
         const box = document.createElement('div');
         box.className = 'cover-box';
         if(game.slug){ box.setAttribute('data-slug', game.slug); }
-        (async ()=>{
-          const titleUpper = (game.Title||'').toUpperCase();
-          const id = await getOrResolveTrailerId(game.slug, titleUpper);
-          if(id){
-            embedIframe(box, id);
+        const loadBtn = document.createElement('button');
+        loadBtn.className = 'load-btn';
+        loadBtn.textContent = 'Load trailer';
+        loadBtn.addEventListener('click', async ()=>{
+          loadBtn.disabled = true;
+          loadBtn.textContent = 'Loading...';
+          try{
+            const titleUpper = (game.Title||'').toUpperCase();
+            const id = await getOrResolveTrailerId(game.slug, titleUpper);
+            if(id){
+              embedIframe(box, id);
+            }else{
+              loadBtn.disabled = false;
+              loadBtn.textContent = 'Open on YouTube';
+              const url = getYouTubeTrailerUrl(game);
+              loadBtn.addEventListener('click', ()=>{ window.open(url||'https://www.youtube.com', '_blank'); });
+            }
+          }catch(e){
+            loadBtn.disabled = false;
+            loadBtn.textContent = 'Open on YouTube';
+            const url = getYouTubeTrailerUrl(game);
+            loadBtn.addEventListener('click', ()=>{ window.open(url||'https://www.youtube.com', '_blank'); });
           }
-        })();
+        });
+        box.appendChild(loadBtn);
         el.appendChild(box);
 
         grid.appendChild(el);
